@@ -21,6 +21,7 @@ Homestead.yaml
 pnpm-lock.yaml
 npm-debug.log
 yarn-error.log
+todo.md
 /auth.json
 /.fleet
 /.idea
