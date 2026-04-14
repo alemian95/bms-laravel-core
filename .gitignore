@@ -25,6 +25,7 @@ todo.md
 /auth.json
 /.fleet
 /.idea
+/.junie/memory
 /.ai
 /.nova
 /.vscode
