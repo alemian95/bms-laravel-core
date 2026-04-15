@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->string('name');
             $table->string('slug');
+            $table->string('color')->default('#000000');
             $table->timestamps();
 
             $table->unique(['user_id', 'slug']);

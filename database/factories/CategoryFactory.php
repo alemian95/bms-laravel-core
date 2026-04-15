@@ -25,6 +25,7 @@ class CategoryFactory extends Factory
             'user_id' => User::factory(),
             'name' => ucfirst($name),
             'slug' => Str::slug($name),
+            'color' => $this->faker->hexColor(),
         ];
     }
 }
