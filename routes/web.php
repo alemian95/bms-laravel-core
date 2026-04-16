@@ -10,7 +10,7 @@ Route::inertia('/', 'welcome', [
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::inertia('dashboard', 'dashboard')->name('dashboard');
 
-    Route::resource('categories', \App\Http\Controllers\CategoryController::class);
+    Route::resource('categories', \App\Http\Controllers\CategoryController::class)->except(['show', 'edit', 'create']);
 
 });
 

@@ -7,11 +7,21 @@ import type { Category } from '@/types';
 
 const createUrl = categories.store()
 
-export default function Categories({ categories }: { categories: Category[] }) {
+export default function Categories({ categories, flash }: {
+    categories: Category[],
+    flash: {
+        success?: string|null,
+        error?: string|null,
+    }
+}) {
 
     return (
         <>
             <Head title="Categories" />
+
+            { flash.success && <div className={`text-green-500`}>{flash.success}</div> }
+            { flash.error && <div className={`text-red-500`}>{flash.error}</div> }
+
             <Form action={createUrl} method={`post`} className={`flex gap-2`}>
                 <Input
                     type={`text`}
