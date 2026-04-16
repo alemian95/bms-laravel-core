@@ -1,7 +1,7 @@
-import { TextCursorInputIcon, Trash2Icon } from 'lucide-react';
-import type { Category } from '@/types';
 import { router } from '@inertiajs/react';
+import { TextCursorInputIcon, Trash2Icon } from 'lucide-react';
 import categories from '@/routes/categories';
+import type { Category } from '@/types';
 
 export function CategoryListItem({ category }: { category: Category }) {
     return (
