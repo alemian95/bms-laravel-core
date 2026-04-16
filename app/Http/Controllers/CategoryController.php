@@ -19,70 +19,92 @@ class CategoryController extends Controller
             'flash' => [
                 'success' => session('success'),
                 'error' => session('error'),
-            ]
+            ],
         ]);
     }
 
-//    /**
-//     * Show the form for creating a new resource.
-//     */
-//    public function create()
-//    {
-//        return Inertia::render('categories/form', []);
-//    }
+    //    /**
+    //     * Show the form for creating a new resource.
+    //     */
+    //    public function create()
+    //    {
+    //        return Inertia::render('categories/form', []);
+    //    }
 
     /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
     {
-
         $validated = $request->validate([
             'name' => 'required|string|max:255',
         ]);
 
-        try {
-            Category::create([...$validated, 'slug' => Str::slug($validated['name']), 'user_id' => $request->user()->id]);
+        $slug = Str::slug($validated['name']);
+        $originalSlug = $slug;
+        $count = 2;
+
+        while (Category::where('user_id', $request->user()->id)->where('slug', $slug)->exists()) {
+            $slug = "{$originalSlug}-{$count}";
+            $count++;
         }
-        catch (\Exception $e) {
+
+        try {
+            Category::create([...$validated, 'slug' => $slug, 'user_id' => $request->user()->id]);
+        } catch (\Exception $e) {
             return redirect()->route('categories.index')->with('error', $e->getMessage());
         }
+
         return redirect()->route('categories.index')->with('success', 'Category created successfully');
     }
 
-//    /**
-//     * Display the specified resource.
-//     */
-//    public function show(Category $category)
-//    {
-//        return Inertia::render('categories/show', [
-//            'category' => $category
-//        ]);
-//    }
+    //    /**
+    //     * Display the specified resource.
+    //     */
+    //    public function show(Category $category)
+    //    {
+    //        return Inertia::render('categories/show', [
+    //            'category' => $category
+    //        ]);
+    //    }
 
-//    /**
-//     * Show the form for editing the specified resource.
-//     */
-//    public function edit(Category $category)
-//    {
-//        return Inertia::render('categories/form', [
-//            'category' => $category
-//        ]);
-//    }
+    //    /**
+    //     * Show the form for editing the specified resource.
+    //     */
+    //    public function edit(Category $category)
+    //    {
+    //        return Inertia::render('categories/form', [
+    //            'category' => $category
+    //        ]);
+    //    }
 
     /**
      * Update the specified resource in storage.
      */
     public function update(Request $request, Category $category)
     {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+        ]);
+
+        $slug = Str::slug($validated['name']);
+        $originalSlug = $slug;
+        $count = 2;
+
+        while (Category::where('user_id', $request->user()->id)
+            ->where('slug', $slug)
+            ->where('id', '!=', $category->id)
+            ->exists()) {
+            $slug = "{$originalSlug}-{$count}";
+            $count++;
+        }
+
         try {
-            //
+            $category->update([...$validated, 'slug' => $slug]);
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', $e->getMessage());
         }
-        catch (\Exception $e) {
-            return redirect()->route('categories.form', [
-                'category' => $category
-            ])->with('error', $e->getMessage());
-        }
+
         return redirect()->route('categories.index')->with('success', 'Category updated successfully');
     }
 
@@ -93,10 +115,10 @@ class CategoryController extends Controller
     {
         try {
             $category->delete();
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             return redirect()->route('categories.index')->with('error', $e->getMessage());
         }
+
         return redirect()->route('categories.index')->with('success', 'Category deleted successfully');
     }
 }

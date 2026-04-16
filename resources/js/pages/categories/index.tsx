@@ -19,8 +19,12 @@ export default function Categories({ categories, flash }: {
         <>
             <Head title="Categories" />
 
-            { flash.success && <div className={`text-green-500`}>{flash.success}</div> }
-            { flash.error && <div className={`text-red-500`}>{flash.error}</div> }
+            {flash.success && (
+                <div className={`text-green-500`}>{flash.success}</div>
+            )}
+            {flash.error && (
+                <div className={`text-red-500`}>{flash.error}</div>
+            )}
 
             <Form action={createUrl} method={`post`} className={`flex gap-2`}>
                 <Input
@@ -28,11 +32,7 @@ export default function Categories({ categories, flash }: {
                     name={`name`}
                     placeholder={`Create new category`}
                 />
-                <Input
-                    className={`w-12 p-0`}
-                    type={`color`}
-                    name={`color`}
-                />
+                <Input className={`w-12 p-0`} type={`color`} name={`color`} />
                 <Button type={`submit`}>Create</Button>
             </Form>
             <ul className={`mt-4 flex flex-col gap-3`}>
@@ -44,7 +44,9 @@ export default function Categories({ categories, flash }: {
                         }}
                         key={category.id}
                     >
-                        <span className={`font-bold`}>{category.name}</span>
+                        <div>
+                            <span className={`font-bold`}>{category.name}</span> <span className={`ml-2 text-sm`}>({category.slug})</span>
+                        </div>
                         <div className={`flex items-center gap-2`}>
                             <div className={`mr-6`}>
                                 <b>{category.bookmarks_count}</b> bookmarks
