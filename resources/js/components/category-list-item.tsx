@@ -1,6 +1,6 @@
 import { router } from '@inertiajs/react';
 import { CheckIcon, PaintBucketIcon, TextCursorInputIcon, Trash2Icon, XIcon } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { Input } from '@/components/ui/input';
 import categories from '@/routes/categories';
@@ -9,6 +9,27 @@ import type { Category } from '@/types';
 export function CategoryListItem({ category }: { category: Category }) {
     const [isEditingName, setIsEditingName] = useState(false);
     const [newName, setNewName] = useState(category.name);
+    const [color, setColor] = useState(category.color ?? '#000000');
+    const [prevCategoryColor, setPrevCategoryColor] = useState(category.color);
+
+    if (category.color !== prevCategoryColor) {
+        setPrevCategoryColor(category.color);
+        setColor(category.color ?? '#000000');
+    }
+
+    useEffect(() => {
+        if (color === (category.color ?? '#000000')) {
+            return;
+        }
+
+        const timeout = setTimeout(() => {
+            router.put(categories.update(category.id), { color }, {
+                preserveScroll: true,
+            });
+        }, 500);
+
+        return () => clearTimeout(timeout);
+    }, [color, category.id, category.color]);
 
     const updateName = () => {
         if (newName.trim() === '' || newName === category.name) {
@@ -23,15 +44,11 @@ export function CategoryListItem({ category }: { category: Category }) {
         });
     };
 
-    const updateColor = (color: string) => {
-        router.put(categories.update(category.id), { color });
-    };
-
     return (
         <li
             className={`flex items-center justify-between rounded px-4 py-2`}
             style={{
-                backgroundColor: category.color + '42',
+                backgroundColor: color + '42',
             }}
             key={category.id}
         >
@@ -85,8 +102,8 @@ export function CategoryListItem({ category }: { category: Category }) {
                     <input
                         type="color"
                         className={`size-5 opacity-0 cursor-pointer`}
-                        value={category.color ?? '#000000'}
-                        onChange={(e) => updateColor(e.target.value)}
+                        value={color}
+                        onChange={(e) => setColor(e.target.value)}
                     />
                 </div>
                 <button onClick={() => {
