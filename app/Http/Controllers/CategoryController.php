@@ -38,7 +38,7 @@ class CategoryController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'color' => 'nullable|string|max:7'
+            'color' => 'nullable|string|max:7',
         ]);
 
         $slug = Str::slug($validated['name']);
@@ -85,23 +85,27 @@ class CategoryController extends Controller
     public function update(Request $request, Category $category)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'sometimes|required|string|max:255',
+            'color' => 'sometimes|nullable|string|max:7',
         ]);
 
-        $slug = Str::slug($validated['name']);
-        $originalSlug = $slug;
-        $count = 2;
+        if (isset($validated['name'])) {
+            $slug = Str::slug($validated['name']);
+            $originalSlug = $slug;
+            $count = 2;
 
-        while (Category::where('user_id', $request->user()->id)
-            ->where('slug', $slug)
-            ->where('id', '!=', $category->id)
-            ->exists()) {
-            $slug = "{$originalSlug}-{$count}";
-            $count++;
+            while (Category::where('user_id', $request->user()->id)
+                ->where('slug', $slug)
+                ->where('id', '!=', $category->id)
+                ->exists()) {
+                $slug = "{$originalSlug}-{$count}";
+                $count++;
+            }
+            $validated['slug'] = $slug;
         }
 
         try {
-            $category->update([...$validated, 'slug' => $slug]);
+            $category->update($validated);
         } catch (\Exception $e) {
             return redirect()->back()->with('error', $e->getMessage());
         }

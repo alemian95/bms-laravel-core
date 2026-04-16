@@ -88,3 +88,51 @@ test('updates category with duplicate slug name', function () {
         'slug' => 'first-category-2',
     ]);
 });
+
+test('updates only category color', function () {
+    $user = User::factory()->create();
+
+    $category = Category::factory()->create([
+        'user_id' => $user->id,
+        'name' => 'Original Name',
+        'color' => '#000000',
+    ]);
+
+    $response = $this->actingAs($user)
+        ->patch(route('categories.update', $category), [
+            'color' => '#FFFFFF',
+        ]);
+
+    $response->assertRedirect(route('categories.index'));
+
+    $this->assertDatabaseHas('categories', [
+        'id' => $category->id,
+        'name' => 'Original Name',
+        'color' => '#FFFFFF',
+    ]);
+});
+
+test('updates only category name and slug', function () {
+    $user = User::factory()->create();
+
+    $category = Category::factory()->create([
+        'user_id' => $user->id,
+        'name' => 'Original Name',
+        'slug' => 'original-name',
+        'color' => '#000000',
+    ]);
+
+    $response = $this->actingAs($user)
+        ->patch(route('categories.update', $category), [
+            'name' => 'New Name',
+        ]);
+
+    $response->assertRedirect(route('categories.index'));
+
+    $this->assertDatabaseHas('categories', [
+        'id' => $category->id,
+        'name' => 'New Name',
+        'slug' => 'new-name',
+        'color' => '#000000',
+    ]);
+});
