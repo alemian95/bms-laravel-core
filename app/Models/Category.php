@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['user_id', 'name', 'slug'])]
+#[Fillable(['user_id', 'name', 'slug', 'color'])]
 class Category extends Model
 {
     /** @use HasFactory<CategoryFactory> */
