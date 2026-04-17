@@ -56,7 +56,7 @@ export function CategoryListItem({ category }: { category: Category }) {
                 {isEditingName ? (
                     <div className={`flex items-center gap-2 flex-1`}>
                         <Input
-                            className={`h-8 py-0`}
+                            className={`w-fit py-0`}
                             value={newName}
                             onChange={(e) => setNewName(e.target.value)}
                             onKeyDown={(e) => {
