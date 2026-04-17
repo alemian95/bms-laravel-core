@@ -78,7 +78,7 @@ export function CategoryListItem({ category }: { category: Category }) {
                             setIsEditingName(false);
                             setNewName(category.name);
                         }}>
-                            <XIcon className={`size-4 text-red-600`} />
+                            <XIcon className={`size-4 text-destructive`} />
                         </button>
                     </div>
                 ) : (
@@ -111,7 +111,7 @@ export function CategoryListItem({ category }: { category: Category }) {
                         router.delete(categories.destroy(category.id))
                     }
                 }}>
-                    <Trash2Icon className={`size-5`} />
+                    <Trash2Icon className={`size-5 text-destructive`} />
                 </button>
             </div>
         </li>
