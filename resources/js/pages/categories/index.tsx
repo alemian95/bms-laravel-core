@@ -20,17 +20,6 @@ export default function Categories({ categories, flash }: {
         <>
             <Head title="Categories" />
 
-            {flash.success && (
-                <Alert variant={`success`} className={`mb-4`}>
-                    <AlertDescription>{flash.success}</AlertDescription>
-                </Alert>
-            )}
-            {flash.error && (
-                <Alert variant={`destructive`} className={`mb-4`}>
-                    <AlertDescription>{flash.error}</AlertDescription>
-                </Alert>
-            )}
-
             <Form action={createUrl} method={`post`} className={`flex gap-2`}>
                 <Input
                     type={`text`}

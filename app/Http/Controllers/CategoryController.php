@@ -15,11 +15,7 @@ class CategoryController extends Controller
     public function index()
     {
         return Inertia::render('categories/index', [
-            'categories' => Category::withCount('bookmarks')->orderBy('name')->get(),
-            'flash' => [
-                'success' => session('success'),
-                'error' => session('error'),
-            ],
+            'categories' => Category::withCount('bookmarks')->orderBy('name')->get()
         ]);
     }
 
@@ -53,10 +49,12 @@ class CategoryController extends Controller
         try {
             Category::create([...$validated, 'slug' => $slug, 'user_id' => $request->user()->id]);
         } catch (\Exception $e) {
-            return redirect()->route('categories.index')->with('error', $e->getMessage());
+            Inertia::flash('toast', ['type' => 'error', 'message' => $e->getMessage()]);
+            return redirect()->route('categories.index');
         }
 
-        return redirect()->route('categories.index')->with('success', 'Category created successfully');
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Category created successfully']);
+        return redirect()->route('categories.index');
     }
 
     //    /**
@@ -107,10 +105,12 @@ class CategoryController extends Controller
         try {
             $category->update($validated);
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', $e->getMessage());
+            Inertia::flash('toast', ['type' => 'error', 'message' => $e->getMessage()]);
+            return redirect()->back();
         }
 
-        return redirect()->route('categories.index')->with('success', 'Category updated successfully');
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Category updated successfully']);
+        return redirect()->route('categories.index');
     }
 
     /**
@@ -121,9 +121,11 @@ class CategoryController extends Controller
         try {
             $category->delete();
         } catch (\Exception $e) {
-            return redirect()->route('categories.index')->with('error', $e->getMessage());
+            Inertia::flash('toast', ['type' => 'error', 'message' => $e->getMessage()]);
+            return redirect()->route('categories.index');
         }
 
-        return redirect()->route('categories.index')->with('success', 'Category deleted successfully');
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Category deleted successfully']);
+        return redirect()->route('categories.index');
     }
 }
