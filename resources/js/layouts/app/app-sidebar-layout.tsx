@@ -13,7 +13,7 @@ export default function AppSidebarLayout({
             <AppSidebar />
             <AppContent
                 variant="sidebar"
-                className="relative overflow-x-hidden"
+                className="relative" //overflow-x-hidden
             >
                 <AppSidebarHeader breadcrumbs={breadcrumbs} />
                 <div className={`overflow-auto p-4`}>{children}</div>
