@@ -2,19 +2,23 @@ import { Head, Link, router } from '@inertiajs/react';
 import { useEffect } from 'react';
 
 import { BookmarkCard } from '@/components/bookmark-card';
+import { ItemsPagination } from '@/components/items-pagination';
 import { NewBookmarkDialog } from '@/components/new-bookmark-dialog';
 import bookmarks from '@/routes/bookmarks';
-import type { Bookmark, Category } from '@/types';
+import type { Bookmark, Category, Paginated } from '@/types';
 
 export default function BookmarksIndex({
-    bookmarks: items,
+    bookmarks: paginatedBookmarks,
     categories,
     activeCategory,
 }: {
-    bookmarks: Bookmark[];
+    bookmarks: Paginated<Bookmark>;
     categories: Category[];
     activeCategory: string | null;
 }) {
+
+    const items = paginatedBookmarks.data;
+
     const hasPending = items.some((b) => b.status === 'pending');
 
     useEffect(() => {
@@ -35,7 +39,11 @@ export default function BookmarksIndex({
 
             <div className={`flex flex-col gap-6 md:flex-row`}>
                 <aside className={`md:w-56 md:shrink-0`}>
-                    <h2 className={`mb-3 text-sm font-semibold text-muted-foreground`}>Categories</h2>
+                    <h2
+                        className={`mb-3 text-sm font-semibold text-muted-foreground`}
+                    >
+                        Categories
+                    </h2>
                     <ul className={`flex flex-col gap-1`}>
                         <li>
                             <Link
@@ -48,14 +56,23 @@ export default function BookmarksIndex({
                         {categories.map((category) => (
                             <li key={category.id}>
                                 <Link
-                                    href={bookmarks.index({ query: { category: category.slug } }).url}
+                                    href={
+                                        bookmarks.index({
+                                            query: { category: category.slug },
+                                        }).url
+                                    }
                                     className={`flex items-center gap-2 rounded px-2 py-1 text-sm hover:bg-muted ${activeCategory === category.slug ? 'bg-muted font-medium' : ''}`}
                                 >
                                     <span
                                         className={`size-3 shrink-0 rounded-full`}
-                                        style={{ backgroundColor: category.color ?? '#999' }}
+                                        style={{
+                                            backgroundColor:
+                                                category.color ?? '#999',
+                                        }}
                                     />
-                                    <span className={`truncate`}>{category.name}</span>
+                                    <span className={`truncate`}>
+                                        {category.name}
+                                    </span>
                                 </Link>
                             </li>
                         ))}
@@ -66,22 +83,39 @@ export default function BookmarksIndex({
                     <div className={`mb-6 flex items-center justify-between`}>
                         <h1 className={`text-xl font-semibold`}>
                             {activeCategory
-                                ? categories.find((c) => c.slug === activeCategory)?.name ?? 'Bookmarks'
+                                ? (categories.find(
+                                      (c) => c.slug === activeCategory,
+                                  )?.name ?? 'Bookmarks')
                                 : 'All bookmarks'}
                         </h1>
                         <NewBookmarkDialog categories={categories} />
                     </div>
 
                     {items.length === 0 ? (
-                        <div className={`rounded-lg border border-dashed p-10 text-center text-muted-foreground`}>
-                            No bookmarks yet. Click "New Bookmark" to save your first link.
+                        <div
+                            className={`rounded-lg border border-dashed p-10 text-center text-muted-foreground`}
+                        >
+                            No bookmarks yet. Click "New Bookmark" to save your
+                            first link.
                         </div>
                     ) : (
-                        <div className={`grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3`}>
-                            {items.map((bookmark) => (
-                                <BookmarkCard key={bookmark.id} bookmark={bookmark} />
-                            ))}
-                        </div>
+                        <>
+                            <div
+                                className={`grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3`}
+                            >
+                                {items.map((bookmark) => (
+                                    <BookmarkCard
+                                        key={bookmark.id}
+                                        bookmark={bookmark}
+                                    />
+                                ))}
+                            </div>
+                            <div className={`mt-4`}>
+                                <ItemsPagination
+                                    pagination={paginatedBookmarks}
+                                />
+                            </div>
+                        </>
                     )}
                 </div>
             </div>
@@ -93,7 +127,7 @@ BookmarksIndex.layout = {
     breadcrumbs: [
         {
             title: 'Bookmarks',
-            href: bookmarks.index().url,
+            href: '',//bookmarks.index().url,
         },
     ],
 };

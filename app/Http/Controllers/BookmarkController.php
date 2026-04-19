@@ -26,7 +26,7 @@ class BookmarkController extends Controller
                 });
             })
             ->orderByDesc('created_at')
-            ->get();
+            ->paginate(9);
 
         return Inertia::render('bookmarks/index', [
             'bookmarks' => $bookmarks,
