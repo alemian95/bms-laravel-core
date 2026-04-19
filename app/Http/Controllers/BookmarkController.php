@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Jobs\ExtractBookmarkMetadataJob;
+use App\Jobs\ParseArticleContentJob;
 use App\Models\Bookmark;
 use App\Models\Category;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 
@@ -72,7 +74,10 @@ class BookmarkController extends Controller
                 'status' => 'pending',
             ]);
 
-            ExtractBookmarkMetadataJob::dispatch($bookmark);
+            Bus::chain([
+                new ExtractBookmarkMetadataJob($bookmark),
+                new ParseArticleContentJob($bookmark),
+            ])->dispatch();
         } catch (\Exception $e) {
             Inertia::flash('toast', ['type' => 'error', 'message' => $e->getMessage()]);
 
@@ -82,6 +87,15 @@ class BookmarkController extends Controller
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Bookmark saved, extracting metadata...']);
 
         return redirect()->route('bookmarks.index');
+    }
+
+    public function read(Request $request, Bookmark $bookmark)
+    {
+        Gate::authorize('view', $bookmark);
+
+        return Inertia::render('bookmarks/read', [
+            'bookmark' => $bookmark->load('category:id,name,slug,color'),
+        ]);
     }
 
     public function destroy(Request $request, Bookmark $bookmark)

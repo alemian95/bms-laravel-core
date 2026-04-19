@@ -1,16 +1,18 @@
 <?php
 
 use App\Jobs\ExtractBookmarkMetadataJob;
+use App\Jobs\ParseArticleContentJob;
 use App\Models\Bookmark;
 use App\Models\Category;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Queue;
 
 uses(RefreshDatabase::class);
 
-test('stores a bookmark and dispatches the metadata job', function () {
-    Queue::fake();
+test('stores a bookmark and chains metadata then parse content jobs', function () {
+    Bus::fake();
     $user = User::factory()->create();
 
     $response = $this->actingAs($user)->post(route('bookmarks.store'), [
@@ -23,7 +25,37 @@ test('stores a bookmark and dispatches the metadata job', function () {
     expect($bookmark->status)->toBe('pending')
         ->and($bookmark->url)->toBe('https://example.com/article');
 
-    Queue::assertPushed(ExtractBookmarkMetadataJob::class, fn ($job) => $job->bookmark->is($bookmark));
+    Bus::assertChained([
+        fn (ExtractBookmarkMetadataJob $job) => $job->bookmark->is($bookmark),
+        fn (ParseArticleContentJob $job) => $job->bookmark->is($bookmark),
+    ]);
+});
+
+test('read renders reader page for owned bookmark', function () {
+    $user = User::factory()->create();
+    $bookmark = Bookmark::factory()->for($user)->create([
+        'title' => 'A great read',
+        'content_html' => '<p>Body</p>',
+    ]);
+
+    $response = $this->actingAs($user)->get(route('bookmarks.read', $bookmark));
+
+    $response->assertOk();
+    $response->assertInertia(fn ($page) => $page
+        ->component('bookmarks/read')
+        ->where('bookmark.id', $bookmark->id)
+        ->where('bookmark.content_html', '<p>Body</p>')
+    );
+});
+
+test('read forbids access to another user bookmark', function () {
+    $user = User::factory()->create();
+    $other = User::factory()->create();
+    $bookmark = Bookmark::factory()->for($other)->create();
+
+    $response = $this->actingAs($user)->get(route('bookmarks.read', $bookmark));
+
+    $response->assertForbidden();
 });
 
 test('stores a bookmark linked to a category', function () {

@@ -1,5 +1,5 @@
-import { router } from '@inertiajs/react';
-import { AlertTriangleIcon, ExternalLinkIcon, Trash2Icon } from 'lucide-react';
+import { Link, router } from '@inertiajs/react';
+import { AlertTriangleIcon, BookOpenIcon, ExternalLinkIcon, Trash2Icon } from 'lucide-react';
 
 import bookmarks from '@/routes/bookmarks';
 import type { Bookmark } from '@/types';
@@ -70,14 +70,24 @@ export function BookmarkCard({ bookmark }: { bookmark: Bookmark }) {
                 )}
 
                 <div className={`mt-auto flex items-center justify-between pt-3`}>
-                    <a
-                        href={bookmark.url}
-                        target={`_blank`}
-                        rel={`noreferrer noopener`}
-                        className={`inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground`}
-                    >
-                        Open <ExternalLinkIcon className={`size-3`} />
-                    </a>
+                    <div className={`flex items-center gap-3`}>
+                        {!isPending && (
+                            <Link
+                                href={bookmarks.read(bookmark.id).url}
+                                className={`inline-flex items-center gap-1 text-xs font-medium text-foreground hover:underline`}
+                            >
+                                <BookOpenIcon className={`size-3`} /> Read
+                            </Link>
+                        )}
+                        <a
+                            href={bookmark.url}
+                            target={`_blank`}
+                            rel={`noreferrer noopener`}
+                            className={`inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground`}
+                        >
+                            Open <ExternalLinkIcon className={`size-3`} />
+                        </a>
+                    </div>
                     <button
                         onClick={handleDelete}
                         className={`cursor-pointer text-muted-foreground hover:text-destructive`}

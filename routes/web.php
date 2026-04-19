@@ -13,6 +13,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::inertia('dashboard', 'dashboard')->name('dashboard');
 
     Route::resource('categories', CategoryController::class)->except(['show', 'edit', 'create']);
+    Route::get('bookmarks/{bookmark}/read', [BookmarkController::class, 'read'])->name('bookmarks.read');
     Route::resource('bookmarks', BookmarkController::class)->only(['index', 'store', 'destroy']);
 
 });
