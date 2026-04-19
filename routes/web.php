@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\BookmarkController;
+use App\Http\Controllers\CategoryController;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
 
@@ -10,7 +12,8 @@ Route::inertia('/', 'welcome', [
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::inertia('dashboard', 'dashboard')->name('dashboard');
 
-    Route::resource('categories', \App\Http\Controllers\CategoryController::class)->except(['show', 'edit', 'create']);
+    Route::resource('categories', CategoryController::class)->except(['show', 'edit', 'create']);
+    Route::resource('bookmarks', BookmarkController::class)->only(['index', 'store', 'destroy']);
 
 });
 

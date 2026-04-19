@@ -3,19 +3,21 @@ import type { User } from '@/types/auth';
 export interface Bookmark {
     id: number;
     user_id: number;
-    category_id: number;
+    category_id: number | null;
     url: string;
-    title: string;
-    domain: string;
-    author: string;
-    thumbnail_url: string;
-    content_html: string;
-    content_text: string;
+    title: string | null;
+    domain: string | null;
+    author: string | null;
+    thumbnail_url: string | null;
+    content_html: string | null;
+    content_text: string | null;
     reading_progress: number;
     scroll_position: number;
     status: BookmarkStatus;
+    created_at?: string;
+    updated_at?: string;
     user?: User
-    category?: Category
+    category?: Category | null
 }
 
 export type BookmarkStatus = 'pending' | 'parsed' | 'failed';
