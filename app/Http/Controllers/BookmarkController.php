@@ -98,6 +98,20 @@ class BookmarkController extends Controller
         ]);
     }
 
+    public function updateProgress(Request $request, Bookmark $bookmark)
+    {
+        Gate::authorize('update', $bookmark);
+        $request->validate([
+            'progress' => 'required|integer|min:0|max:100',
+        ]);
+        $bookmark->update([
+            'scroll_position' => $request->progress,
+            'reading_progress' => max($request->progress, $bookmark->reading_progress),
+        ]);
+
+        return response()->noContent();
+    }
+
     public function destroy(Request $request, Bookmark $bookmark)
     {
         Gate::authorize('delete', $bookmark);

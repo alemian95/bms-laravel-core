@@ -1,7 +1,9 @@
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, Link, router, useHttp } from '@inertiajs/react';
 import { ArrowLeftIcon, ExternalLinkIcon } from 'lucide-react';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
+import { useDebounce } from '@/hooks/use-debounce';
+import { useScrollPercentage } from '@/hooks/use-scroll-percentage';
 import bookmarks from '@/routes/bookmarks';
 import type { Bookmark } from '@/types';
 
@@ -9,6 +11,58 @@ export default function BookmarkRead({ bookmark }: { bookmark: Bookmark }) {
     const isPending = bookmark.status === 'pending';
     const hasContent = bookmark.content_html !== null && bookmark.content_html.length > 0;
     const shouldPoll = isPending || (bookmark.status === 'parsed' && !hasContent && bookmark.content_text === null);
+
+    const updateProgressHttp = useHttp({
+        progress: bookmark.scroll_position
+    })
+
+    const scrollPercentage = useScrollPercentage();
+    const debouncedScrollPercentage = useDebounce(scrollPercentage, 1000);
+
+    const isRestored = useRef(false);
+
+    const scrollToPercentage = (percentage: number) => {
+        if (percentage <= 0) {
+            return;
+        }
+
+        const scrollHeight = document.documentElement.scrollHeight;
+        const clientHeight = document.documentElement.clientHeight;
+        const totalScrollableHeight = scrollHeight - clientHeight;
+        const validatedPercent = Math.max(0, Math.min(percentage, 100));
+        const scrollToPixel = (validatedPercent / 100) * totalScrollableHeight;
+
+        window.scrollTo({
+            top: scrollToPixel,
+            behavior: 'smooth',
+        });
+    };
+
+    useEffect(() => {
+        updateProgressHttp.setData({
+            progress: debouncedScrollPercentage,
+        });
+    }, [debouncedScrollPercentage]);
+
+    useEffect(() => {
+        if (!isRestored.current || updateProgressHttp.data.progress === bookmark.reading_progress) {
+            return;
+        }
+
+        updateProgressHttp.patch(bookmarks.updateProgress(bookmark.id).url);
+    }, [bookmark.id, updateProgressHttp.data.progress]);
+
+    useEffect(() => {
+        // Restore scroll on initial load
+        if (hasContent && !isRestored.current) {
+            const timer = setTimeout(() => {
+                scrollToPercentage(bookmark.scroll_position);
+                isRestored.current = true;
+            }, 100);
+
+            return () => clearTimeout(timer);
+        }
+    }, [hasContent, bookmark.reading_progress]);
 
     useEffect(() => {
         if (!shouldPoll) {
