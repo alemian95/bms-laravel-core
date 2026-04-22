@@ -15,8 +15,12 @@ export function BookmarkCard({ bookmark }: { bookmark: Bookmark }) {
     };
 
     return (
-        <article className={`group flex flex-col overflow-hidden rounded-lg border bg-card shadow-xs transition hover:shadow-md`}>
-            <div className={`relative aspect-[16/9] w-full overflow-hidden bg-muted`}>
+        <article
+            className={`group flex flex-col overflow-hidden rounded-lg border bg-card shadow-xs transition hover:shadow-md`}
+        >
+            <div
+                className={`relative aspect-[16/9] w-full overflow-hidden bg-muted`}
+            >
                 {isPending ? (
                     <div className={`size-full animate-pulse bg-muted`} />
                 ) : bookmark.thumbnail_url ? (
@@ -26,17 +30,23 @@ export function BookmarkCard({ bookmark }: { bookmark: Bookmark }) {
                         className={`size-full object-cover`}
                         loading={`lazy`}
                         onError={(e) => {
-                            (e.currentTarget as HTMLImageElement).style.display = 'none';
+                            (
+                                e.currentTarget as HTMLImageElement
+                            ).style.display = 'none';
                         }}
                     />
                 ) : (
-                    <div className={`flex size-full items-center justify-center text-xs text-muted-foreground`}>
+                    <div
+                        className={`flex size-full items-center justify-center text-xs text-muted-foreground`}
+                    >
                         No preview
                     </div>
                 )}
 
                 {isFailed && (
-                    <div className={`absolute top-2 right-2 flex items-center gap-1 rounded-full bg-destructive px-2 py-0.5 text-xs text-destructive-foreground`}>
+                    <div
+                        className={`text-destructive-foreground absolute top-2 right-2 flex items-center gap-1 rounded-full bg-destructive px-2 py-0.5 text-xs`}
+                    >
                         <AlertTriangleIcon className={`size-3`} /> Failed
                     </div>
                 )}
@@ -44,7 +54,11 @@ export function BookmarkCard({ bookmark }: { bookmark: Bookmark }) {
                 {bookmark.category && (
                     <div
                         className={`absolute bottom-2 left-2 rounded-full px-2 py-0.5 text-xs font-medium`}
-                        style={{ backgroundColor: (bookmark.category.color ?? '#000') + 'cc', color: '#fff' }}
+                        style={{
+                            backgroundColor:
+                                (bookmark.category.color ?? '#000') + 'cc',
+                            color: '#fff',
+                        }}
                     >
                         {bookmark.category.name}
                     </div>
@@ -54,12 +68,18 @@ export function BookmarkCard({ bookmark }: { bookmark: Bookmark }) {
             <div className={`flex flex-1 flex-col gap-2 p-4`}>
                 {isPending ? (
                     <>
-                        <div className={`h-4 w-3/4 animate-pulse rounded bg-muted`} />
-                        <div className={`h-3 w-1/2 animate-pulse rounded bg-muted`} />
+                        <div
+                            className={`h-4 w-3/4 animate-pulse rounded bg-muted`}
+                        />
+                        <div
+                            className={`h-3 w-1/2 animate-pulse rounded bg-muted`}
+                        />
                     </>
                 ) : (
                     <>
-                        <h3 className={`line-clamp-2 font-semibold leading-tight`}>
+                        <h3
+                            className={`line-clamp-2 leading-tight font-semibold`}
+                        >
                             {bookmark.title ?? bookmark.url}
                         </h3>
                         <div className={`text-xs text-muted-foreground`}>
@@ -69,7 +89,22 @@ export function BookmarkCard({ bookmark }: { bookmark: Bookmark }) {
                     </>
                 )}
 
-                <div className={`mt-auto flex items-center justify-between pt-3`}>
+                <div className={`mt-auto`}>
+                    {!isPending && bookmark.reading_progress > 0 && (
+                        <div
+                            className={`relative mt-2 h-1 rounded-full bg-muted`}
+                        >
+                            <div
+                                className={`absolute top-0 left-0 h-full rounded-full bg-primary transition-all`}
+                                style={{
+                                    width: `${bookmark.reading_progress}%`,
+                                }}
+                            />
+                        </div>
+                    )}
+                </div>
+
+                <div className={`flex items-center justify-between pt-3`}>
                     <div className={`flex items-center gap-3`}>
                         {!isPending && (
                             <Link
