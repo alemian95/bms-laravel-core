@@ -15,7 +15,7 @@ class CategoryController extends Controller
     public function index()
     {
         return Inertia::render('categories/index', [
-            'categories' => Category::withCount('bookmarks')->orderBy('name')->get()
+            'categories' => Category::withCount('bookmarks')->orderBy('name')->get(),
         ]);
     }
 
@@ -50,10 +50,12 @@ class CategoryController extends Controller
             Category::create([...$validated, 'slug' => $slug, 'user_id' => $request->user()->id]);
         } catch (\Exception $e) {
             Inertia::flash('toast', ['type' => 'error', 'message' => $e->getMessage()]);
+
             return redirect()->route('categories.index');
         }
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Category created successfully']);
+
         return redirect()->route('categories.index');
     }
 
@@ -106,10 +108,12 @@ class CategoryController extends Controller
             $category->update($validated);
         } catch (\Exception $e) {
             Inertia::flash('toast', ['type' => 'error', 'message' => $e->getMessage()]);
+
             return redirect()->back();
         }
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Category updated successfully']);
+
         return redirect()->route('categories.index');
     }
 
@@ -122,10 +126,12 @@ class CategoryController extends Controller
             $category->delete();
         } catch (\Exception $e) {
             Inertia::flash('toast', ['type' => 'error', 'message' => $e->getMessage()]);
+
             return redirect()->route('categories.index');
         }
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Category deleted successfully']);
+
         return redirect()->route('categories.index');
     }
 }
