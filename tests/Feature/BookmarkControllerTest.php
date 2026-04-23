@@ -156,7 +156,7 @@ test('index returns only current user bookmarks', function () {
     $response->assertOk();
     $response->assertInertia(fn ($page) => $page
         ->component('bookmarks/index')
-        ->has('bookmarks', 2)
+        ->has('bookmarks.data', 2)
     );
 });
 
@@ -173,7 +173,7 @@ test('index filters bookmarks by category slug', function () {
 
     $response->assertInertia(fn ($page) => $page
         ->where('activeCategory', 'tech')
-        ->has('bookmarks', 2)
+        ->has('bookmarks.data', 2)
     );
 });
 

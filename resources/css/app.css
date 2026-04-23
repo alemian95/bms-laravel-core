@@ -147,4 +147,8 @@
     button {
         @apply cursor-pointer;
     }
+
+    mark {
+        @apply rounded bg-yellow-200/60 px-0.5 text-foreground dark:bg-yellow-500/30;
+    }
 }

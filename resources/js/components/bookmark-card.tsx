@@ -4,7 +4,13 @@ import { AlertTriangleIcon, BookOpenIcon, ExternalLinkIcon, Trash2Icon } from 'l
 import bookmarks from '@/routes/bookmarks';
 import type { Bookmark } from '@/types';
 
-export function BookmarkCard({ bookmark }: { bookmark: Bookmark }) {
+export function BookmarkCard({
+    bookmark,
+    highlight,
+}: {
+    bookmark: Bookmark;
+    highlight?: { title?: string; content_text?: string };
+}) {
     const isPending = bookmark.status === 'pending';
     const isFailed = bookmark.status === 'failed';
 
@@ -77,15 +83,28 @@ export function BookmarkCard({ bookmark }: { bookmark: Bookmark }) {
                     </>
                 ) : (
                     <>
-                        <h3
-                            className={`line-clamp-2 leading-tight font-semibold`}
-                        >
-                            {bookmark.title ?? bookmark.url}
-                        </h3>
+                        {highlight?.title ? (
+                            <h3
+                                className={`line-clamp-2 leading-tight font-semibold`}
+                                dangerouslySetInnerHTML={{ __html: highlight.title }}
+                            />
+                        ) : (
+                            <h3
+                                className={`line-clamp-2 leading-tight font-semibold`}
+                            >
+                                {bookmark.title ?? bookmark.url}
+                            </h3>
+                        )}
                         <div className={`text-xs text-muted-foreground`}>
                             {bookmark.domain}
                             {bookmark.author && <> · {bookmark.author}</>}
                         </div>
+                        {highlight?.content_text && (
+                            <p
+                                className={`line-clamp-2 text-xs text-muted-foreground italic`}
+                                dangerouslySetInnerHTML={{ __html: highlight.content_text }}
+                            />
+                        )}
                     </>
                 )}
 

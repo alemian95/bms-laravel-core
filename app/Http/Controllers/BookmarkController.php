@@ -6,6 +6,7 @@ use App\Jobs\ExtractBookmarkMetadataJob;
 use App\Jobs\ParseArticleContentJob;
 use App\Models\Bookmark;
 use App\Models\Category;
+use App\Services\Search\BookmarkSearchService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Gate;
@@ -13,25 +14,53 @@ use Inertia\Inertia;
 
 class BookmarkController extends Controller
 {
-    public function index(Request $request)
+    public function index(Request $request, BookmarkSearchService $search)
     {
-        $userId = $request->user()->id;
+        $validated = $request->validate([
+            'q' => 'nullable|string|max:200',
+            'category' => 'nullable|string|max:200',
+        ]);
 
-        $bookmarks = Bookmark::query()
-            ->where('user_id', $userId)
-            ->with('category:id,name,slug,color')
-            ->when($request->string('category')->toString(), function ($query, string $slug) use ($userId) {
-                $query->whereHas('category', function ($q) use ($slug, $userId) {
-                    $q->where('user_id', $userId)->where('slug', $slug);
-                });
-            })
-            ->orderByDesc('created_at')
-            ->paginate(9);
+        $userId = $request->user()->id;
+        $perPage = 9;
+        $page = max((int) $request->integer('page', 1), 1);
+        $query = trim((string) ($validated['q'] ?? ''));
+        $categorySlug = $validated['category'] ?? null;
+
+        $activeCategory = $categorySlug
+            ? Category::where('user_id', $userId)->where('slug', $categorySlug)->first()
+            : null;
+
+        $highlights = [];
+
+        if ($query !== '') {
+            $result = $search->search(
+                query: $query,
+                userId: $userId,
+                categoryId: $activeCategory?->id,
+                perPage: $perPage,
+                page: $page,
+                path: $request->url(),
+                queryParams: $request->query(),
+            );
+            $bookmarks = $result['paginator'];
+            $highlights = $result['highlights'];
+        } else {
+            $bookmarks = Bookmark::query()
+                ->where('user_id', $userId)
+                ->with('category:id,name,slug,color')
+                ->when($activeCategory, fn ($q) => $q->where('category_id', $activeCategory->id))
+                ->orderByDesc('created_at')
+                ->paginate($perPage)
+                ->withQueryString();
+        }
 
         return Inertia::render('bookmarks/index', [
             'bookmarks' => $bookmarks,
             'categories' => Category::where('user_id', $userId)->orderBy('name')->get(),
-            'activeCategory' => $request->string('category')->toString() ?: null,
+            'activeCategory' => $activeCategory?->slug,
+            'q' => $query !== '' ? $query : null,
+            'highlights' => $highlights,
         ]);
     }
 
