@@ -1,0 +1,64 @@
+# Git
+.git
+.github
+.gitignore
+.gitattributes
+
+# Dependencies (ricostruite negli stage)
+node_modules
+vendor
+
+# Env locali (mai nell'immagine)
+.env
+.env.*
+!.env.example
+
+# Build artefatti dev
+public/build
+public/hot
+public/storage
+
+# Storage runtime (gestito via volume)
+storage/logs/*
+storage/framework/cache/data/*
+storage/framework/sessions/*
+storage/framework/views/*
+storage/framework/testing/*
+storage/app/public/*
+storage/app/private/*
+!storage/**/.gitignore
+
+# Test + tooling
+tests
+phpunit.xml
+phpunit.xml.dist
+.phpunit.result.cache
+.phpunit.cache
+.phpactor.json
+.pest.cache
+.pint.cache
+
+# IDE / OS
+.idea
+.vscode
+.DS_Store
+*.swp
+*.swo
+
+# Documentazione deploy (non serve dentro l'immagine)
+deploy/docs
+deploy/README.md
+deploy/.env.production.example
+
+# File compose/dev
+compose.yaml
+docker-compose.yml
+docker-compose.yaml
+docker-compose.*.yml
+docker-compose.*.yaml
+
+# Altri
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*

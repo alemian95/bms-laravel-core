@@ -1,0 +1,158 @@
+# docker-compose per produzione (Coolify-compatibile).
+#
+# Servizi:
+#   - app         FrankenPHP, serve HTTP, esegue migrazioni al boot
+#   - worker      php artisan queue:work
+#   - scheduler   php artisan schedule:work
+#   - pgsql       PostgreSQL 18
+#   - meilisearch motore di ricerca full-text (Scout)
+#
+# Tutte le variabili sensibili vengono iniettate dalla UI di Coolify.
+# Vedi deploy/.env.production.example per l'elenco completo.
+
+x-common-env: &common-env
+  APP_NAME: ${APP_NAME:-bms-core}
+  APP_ENV: production
+  APP_KEY: ${APP_KEY}
+  APP_DEBUG: "false"
+  APP_URL: ${APP_URL}
+  APP_LOCALE: ${APP_LOCALE:-it}
+  APP_FALLBACK_LOCALE: ${APP_FALLBACK_LOCALE:-en}
+
+  LOG_CHANNEL: stderr
+  LOG_STACK: single
+  LOG_LEVEL: ${LOG_LEVEL:-info}
+
+  DB_CONNECTION: pgsql
+  DB_HOST: pgsql
+  DB_PORT: 5432
+  DB_DATABASE: ${DB_DATABASE}
+  DB_USERNAME: ${DB_USERNAME}
+  DB_PASSWORD: ${DB_PASSWORD}
+
+  CACHE_STORE: ${CACHE_STORE:-database}
+  SESSION_DRIVER: ${SESSION_DRIVER:-database}
+  SESSION_LIFETIME: ${SESSION_LIFETIME:-120}
+  SESSION_SECURE_COOKIE: "true"
+  QUEUE_CONNECTION: ${QUEUE_CONNECTION:-database}
+
+  SCOUT_DRIVER: meilisearch
+  MEILISEARCH_HOST: http://meilisearch:7700
+  MEILISEARCH_KEY: ${MEILISEARCH_KEY}
+  MEILISEARCH_NO_ANALYTICS: "true"
+
+  MAIL_MAILER: ${MAIL_MAILER:-log}
+  MAIL_HOST: ${MAIL_HOST:-}
+  MAIL_PORT: ${MAIL_PORT:-587}
+  MAIL_USERNAME: ${MAIL_USERNAME:-}
+  MAIL_PASSWORD: ${MAIL_PASSWORD:-}
+  MAIL_ENCRYPTION: ${MAIL_ENCRYPTION:-tls}
+  MAIL_FROM_ADDRESS: ${MAIL_FROM_ADDRESS:-no-reply@example.com}
+  MAIL_FROM_NAME: ${APP_NAME:-bms-core}
+
+  APP_RUN_MIGRATIONS: ${APP_RUN_MIGRATIONS:-true}
+  APP_SCOUT_SYNC: ${APP_SCOUT_SYNC:-true}
+
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    image: bms-core-app:latest
+    restart: unless-stopped
+    environment:
+      <<: *common-env
+      CONTAINER_ROLE: app
+      SERVER_NAME: ":80"
+    expose:
+      - "80"
+    volumes:
+      - app-storage:/app/storage/app
+      - app-logs:/app/storage/logs
+    depends_on:
+      pgsql:
+        condition: service_healthy
+      meilisearch:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1/up"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+  worker:
+    image: bms-core-app:latest
+    restart: unless-stopped
+    environment:
+      <<: *common-env
+      CONTAINER_ROLE: worker
+    command:
+      - php
+      - artisan
+      - queue:work
+      - --tries=3
+      - --backoff=30
+      - --max-time=3600
+      - --sleep=3
+    volumes:
+      - app-storage:/app/storage/app
+      - app-logs:/app/storage/logs
+    depends_on:
+      app:
+        condition: service_healthy
+
+  scheduler:
+    image: bms-core-app:latest
+    restart: unless-stopped
+    environment:
+      <<: *common-env
+      CONTAINER_ROLE: scheduler
+    command:
+      - php
+      - artisan
+      - schedule:work
+    volumes:
+      - app-storage:/app/storage/app
+      - app-logs:/app/storage/logs
+    depends_on:
+      app:
+        condition: service_healthy
+
+  pgsql:
+    image: postgres:18-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_DATABASE}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - pgsql-data:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  meilisearch:
+    image: getmeili/meilisearch:v1.10
+    restart: unless-stopped
+    environment:
+      MEILI_MASTER_KEY: ${MEILISEARCH_KEY}
+      MEILI_NO_ANALYTICS: "true"
+      MEILI_ENV: production
+    volumes:
+      - meilisearch-data:/meili_data
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1:7700/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  app-storage:
+  app-logs:
+  pgsql-data:
+  meilisearch-data:
