@@ -100,3 +100,17 @@ L'applicazione sarà disponibile su `http://localhost:8000`.
 ```bash
 php artisan test --compact
 ```
+
+### Ricerca
+
+Per il corretto funzionamento della ricerca eseguire i seguenti comandi
+
+```bash
+sail artisan scout:index bookmarks
+```
+
+e avviare la coda per la sincronizzazione
+
+```bash
+sail artisan queue:work
+```
