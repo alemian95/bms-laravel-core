@@ -46,15 +46,12 @@ export function CategoryListItem({ category }: { category: Category }) {
 
     return (
         <li
-            className={`flex items-center justify-between rounded px-4 py-2`}
-            style={{
-                backgroundColor: color + '42',
-            }}
+            className={`flex items-center justify-between rounded border px-4 py-2 shadow-sm`}
             key={category.id}
         >
-            <div className={`flex-1 flex items-center gap-2`}>
+            <div className={`flex flex-1 items-center gap-2`}>
                 {isEditingName ? (
-                    <div className={`flex items-center gap-2 flex-1`}>
+                    <div className={`flex flex-1 items-center gap-2`}>
                         <Input
                             className={`w-fit py-0`}
                             value={newName}
@@ -74,18 +71,34 @@ export function CategoryListItem({ category }: { category: Category }) {
                         <button onClick={updateName}>
                             <CheckIcon className={`size-4 text-green-600`} />
                         </button>
-                        <button onClick={() => {
-                            setIsEditingName(false);
-                            setNewName(category.name);
-                        }}>
+                        <button
+                            onClick={() => {
+                                setIsEditingName(false);
+                                setNewName(category.name);
+                            }}
+                        >
                             <XIcon className={`size-4 text-destructive`} />
                         </button>
                     </div>
                 ) : (
-                    <>
-                        <span className={`font-bold`}>{category.name}</span>{' '}
-                        <span className={`ml-2 text-sm text-gray-600`}>({category.slug})</span>
-                    </>
+                    <div
+                        className={`grid grid-cols-[32px_1fr_1fr] grid-rows-2`}
+                    >
+                        <div
+                            className={`row-span-2 flex items-center justify-start`}
+                        >
+                            <div
+                                className={`size-4 rounded-full`}
+                                style={{ backgroundColor: color }}
+                            />
+                        </div>
+                        <span className={`col-span-2 font-bold`}>
+                            {category.name}
+                        </span>{' '}
+                        <span className={`text-sm text-gray-600`}>
+                            code: {category.slug}
+                        </span>
+                    </div>
                 )}
             </div>
             <div className={`flex items-center gap-2`}>
@@ -98,19 +111,27 @@ export function CategoryListItem({ category }: { category: Category }) {
                     </button>
                 )}
                 <div className={`relative flex items-center`}>
-                    <PaintBucketIcon className={`size-5 pointer-events-none absolute left-0`} />
+                    <PaintBucketIcon
+                        className={`pointer-events-none absolute left-0 size-5`}
+                    />
                     <input
                         type="color"
-                        className={`size-5 opacity-0 cursor-pointer`}
+                        className={`size-5 cursor-pointer opacity-0`}
                         value={color}
                         onChange={(e) => setColor(e.target.value)}
                     />
                 </div>
-                <button onClick={() => {
-                    if (confirm('Are you sure you want to delete this category?')) {
-                        router.delete(categories.destroy(category.id))
-                    }
-                }}>
+                <button
+                    onClick={() => {
+                        if (
+                            confirm(
+                                'Are you sure you want to delete this category?',
+                            )
+                        ) {
+                            router.delete(categories.destroy(category.id));
+                        }
+                    }}
+                >
                     <Trash2Icon className={`size-5 text-destructive`} />
                 </button>
             </div>

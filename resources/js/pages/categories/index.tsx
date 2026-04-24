@@ -1,6 +1,5 @@
 import { Form, Head } from '@inertiajs/react';
 import { CategoryListItem } from '@/components/category-list-item';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import categories from '@/routes/categories';
@@ -8,13 +7,7 @@ import type { Category } from '@/types';
 
 const createUrl = categories.store()
 
-export default function Categories({ categories, flash }: {
-    categories: Category[],
-    flash: {
-        success?: string|null,
-        error?: string|null,
-    }
-}) {
+export default function Categories({ categories }: { categories: Category[] }) {
 
     return (
         <>
@@ -31,7 +24,7 @@ export default function Categories({ categories, flash }: {
             </Form>
             <ul className={`mt-4 flex flex-col gap-3`}>
                 {categories.map((category) => (
-                    <CategoryListItem category={category} />
+                    <CategoryListItem category={category} key={category.id} />
                 ))}
             </ul>
         </>
