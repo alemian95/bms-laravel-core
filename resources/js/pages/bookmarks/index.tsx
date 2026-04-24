@@ -73,7 +73,7 @@ export default function BookmarksIndex({
         <>
             <Head title={`Bookmarks`} />
 
-            <div className={`flex flex-col gap-6 md:flex-row`}>
+            <div className={`flex flex-col gap-6 lg:flex-row`}>
                 <aside className={`md:w-56 md:shrink-0`}>
                     <h2
                         className={`mb-3 text-sm font-semibold text-muted-foreground`}
@@ -116,7 +116,9 @@ export default function BookmarksIndex({
                 </aside>
 
                 <div className={`flex-1`}>
-                    <div className={`mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between`}>
+                    <div
+                        className={`mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between`}
+                    >
                         <h1 className={`text-xl font-semibold`}>
                             {activeCategory
                                 ? (categories.find(
@@ -125,7 +127,9 @@ export default function BookmarksIndex({
                                 : 'All bookmarks'}
                         </h1>
                         <div className={`flex items-center gap-2`}>
-                            <div className={`relative flex-1 sm:w-72 sm:flex-none`}>
+                            <div
+                                className={`relative flex-1 sm:w-72 sm:flex-none`}
+                            >
                                 <SearchIcon
                                     className={`pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground`}
                                 />
@@ -162,7 +166,7 @@ export default function BookmarksIndex({
                     ) : (
                         <>
                             <div
-                                className={`grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3`}
+                                className={`grid grid-cols-[repeat(auto-fill,minmax(256px,1fr))] gap-6`}
                             >
                                 {items.map((bookmark) => (
                                     <BookmarkCard
