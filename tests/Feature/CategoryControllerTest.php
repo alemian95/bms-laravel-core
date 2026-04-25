@@ -24,7 +24,7 @@ test('automatically renames duplicate slugs', function () {
         ]);
 
     $response->assertRedirect(route('categories.index'));
-    $response->assertSessionHas('success');
+    $response->assertSessionHas('inertia.flash_data.toast', fn ($toast) => $toast['type'] === 'success');
 
     $this->assertDatabaseHas('categories', [
         'user_id' => $user->id,
