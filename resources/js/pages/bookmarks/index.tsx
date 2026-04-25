@@ -193,7 +193,7 @@ BookmarksIndex.layout = {
     breadcrumbs: [
         {
             title: 'Bookmarks',
-            href: '',//bookmarks.index().url,
+            href: '', //bookmarks.index().url,
         },
     ],
 };

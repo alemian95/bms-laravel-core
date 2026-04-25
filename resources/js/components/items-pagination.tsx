@@ -8,7 +8,11 @@ import {
 } from '@/components/ui/pagination';
 import type { Paginated } from '@/types';
 
-export function ItemsPagination({ pagination }: { pagination: Paginated<unknown>}) {
+export function ItemsPagination({
+    pagination,
+}: {
+    pagination: Paginated<unknown>;
+}) {
     return (
         <div className="flex items-center justify-between">
             <div className="text-sm text-muted-foreground">
@@ -26,7 +30,11 @@ export function ItemsPagination({ pagination }: { pagination: Paginated<unknown>
                             </PaginationItem>
                         )}
                         {pagination.links.map((link, index) => {
-                            if (!link.url || index === 0 || index === pagination.links.length-1) {
+                            if (
+                                !link.url ||
+                                index === 0 ||
+                                index === pagination.links.length - 1
+                            ) {
                                 return null;
                             }
 

@@ -5,10 +5,9 @@ import { Input } from '@/components/ui/input';
 import categories from '@/routes/categories';
 import type { Category } from '@/types';
 
-const createUrl = categories.store()
+const createUrl = categories.store();
 
 export default function Categories({ categories }: { categories: Category[] }) {
-
     return (
         <>
             <Head title="Categories" />

@@ -1,5 +1,10 @@
 import { Link, router } from '@inertiajs/react';
-import { AlertTriangleIcon, BookOpenIcon, ExternalLinkIcon, Trash2Icon } from 'lucide-react';
+import {
+    AlertTriangleIcon,
+    BookOpenIcon,
+    ExternalLinkIcon,
+    Trash2Icon,
+} from 'lucide-react';
 
 import bookmarks from '@/routes/bookmarks';
 import type { Bookmark } from '@/types';
@@ -16,7 +21,9 @@ export function BookmarkCard({
 
     const handleDelete = () => {
         if (confirm('Are you sure you want to delete this bookmark?')) {
-            router.delete(bookmarks.destroy(bookmark.id), { preserveScroll: true });
+            router.delete(bookmarks.destroy(bookmark.id), {
+                preserveScroll: true,
+            });
         }
     };
 
@@ -86,7 +93,9 @@ export function BookmarkCard({
                         {highlight?.title ? (
                             <h3
                                 className={`line-clamp-2 leading-tight font-semibold`}
-                                dangerouslySetInnerHTML={{ __html: highlight.title }}
+                                dangerouslySetInnerHTML={{
+                                    __html: highlight.title,
+                                }}
                             />
                         ) : (
                             <h3
@@ -102,7 +111,9 @@ export function BookmarkCard({
                         {highlight?.content_text && (
                             <p
                                 className={`line-clamp-2 text-xs text-muted-foreground italic`}
-                                dangerouslySetInnerHTML={{ __html: highlight.content_text }}
+                                dangerouslySetInnerHTML={{
+                                    __html: highlight.content_text,
+                                }}
                             />
                         )}
                     </>

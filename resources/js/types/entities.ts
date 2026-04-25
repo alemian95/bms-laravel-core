@@ -37,8 +37,8 @@ export interface Bookmark {
     status: BookmarkStatus;
     created_at?: string;
     updated_at?: string;
-    user?: User
-    category?: Category | null
+    user?: User;
+    category?: Category | null;
 }
 
 export type BookmarkStatus = 'pending' | 'parsed' | 'failed';
@@ -49,7 +49,7 @@ export interface Category {
     name: string;
     slug: string;
     color: string;
-    user?: User
-    bookmarks?: Bookmark[]
-    bookmarks_count?: number
+    user?: User;
+    bookmarks?: Bookmark[];
+    bookmarks_count?: number;
 }

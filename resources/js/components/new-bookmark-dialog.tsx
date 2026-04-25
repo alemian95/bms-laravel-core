@@ -1,12 +1,26 @@
 import { useForm } from '@inertiajs/react';
 import { PlusIcon } from 'lucide-react';
-import { FormEventHandler, useState } from 'react';
+import type { FormEventHandler} from 'react';
+import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import {
+    Dialog,
+    DialogContent,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 import bookmarks from '@/routes/bookmarks';
 import type { Category } from '@/types';
 
@@ -56,32 +70,54 @@ export function NewBookmarkDialog({ categories }: { categories: Category[] }) {
                             autoFocus
                             required
                         />
-                        {errors.url && <p className={`text-sm text-destructive`}>{errors.url}</p>}
+                        {errors.url && (
+                            <p className={`text-sm text-destructive`}>
+                                {errors.url}
+                            </p>
+                        )}
                     </div>
 
                     <div className={`flex flex-col gap-2`}>
                         <Label htmlFor={`category`}>Category (optional)</Label>
                         <Select
                             value={data.category_id || 'none'}
-                            onValueChange={(value) => setData('category_id', value === 'none' ? '' : value)}
+                            onValueChange={(value) =>
+                                setData(
+                                    'category_id',
+                                    value === 'none' ? '' : value,
+                                )
+                            }
                         >
                             <SelectTrigger id={`category`} className={`w-full`}>
                                 <SelectValue placeholder={`No category`} />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value={`none`}>No category</SelectItem>
+                                <SelectItem value={`none`}>
+                                    No category
+                                </SelectItem>
                                 {categories.map((category) => (
-                                    <SelectItem key={category.id} value={String(category.id)}>
+                                    <SelectItem
+                                        key={category.id}
+                                        value={String(category.id)}
+                                    >
                                         {category.name}
                                     </SelectItem>
                                 ))}
                             </SelectContent>
                         </Select>
-                        {errors.category_id && <p className={`text-sm text-destructive`}>{errors.category_id}</p>}
+                        {errors.category_id && (
+                            <p className={`text-sm text-destructive`}>
+                                {errors.category_id}
+                            </p>
+                        )}
                     </div>
 
                     <DialogFooter>
-                        <Button type={`submit`} disabled={processing} className={`cursor-pointer`}>
+                        <Button
+                            type={`submit`}
+                            disabled={processing}
+                            className={`cursor-pointer`}
+                        >
                             {processing ? 'Saving…' : 'Save bookmark'}
                         </Button>
                     </DialogFooter>

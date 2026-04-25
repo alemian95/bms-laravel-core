@@ -1,5 +1,11 @@
 import { router } from '@inertiajs/react';
-import { CheckIcon, PaintBucketIcon, TextCursorInputIcon, Trash2Icon, XIcon } from 'lucide-react';
+import {
+    CheckIcon,
+    PaintBucketIcon,
+    TextCursorInputIcon,
+    Trash2Icon,
+    XIcon,
+} from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import { Input } from '@/components/ui/input';
@@ -23,9 +29,13 @@ export function CategoryListItem({ category }: { category: Category }) {
         }
 
         const timeout = setTimeout(() => {
-            router.put(categories.update(category.id), { color }, {
-                preserveScroll: true,
-            });
+            router.put(
+                categories.update(category.id),
+                { color },
+                {
+                    preserveScroll: true,
+                },
+            );
         }, 500);
 
         return () => clearTimeout(timeout);
@@ -39,9 +49,13 @@ export function CategoryListItem({ category }: { category: Category }) {
             return;
         }
 
-        router.put(categories.update(category.id), { name: newName }, {
-            onSuccess: () => setIsEditingName(false),
-        });
+        router.put(
+            categories.update(category.id),
+            { name: newName },
+            {
+                onSuccess: () => setIsEditingName(false),
+            },
+        );
     };
 
     return (

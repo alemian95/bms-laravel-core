@@ -9,12 +9,17 @@ import type { Bookmark } from '@/types';
 
 export default function BookmarkRead({ bookmark }: { bookmark: Bookmark }) {
     const isPending = bookmark.status === 'pending';
-    const hasContent = bookmark.content_html !== null && bookmark.content_html.length > 0;
-    const shouldPoll = isPending || (bookmark.status === 'parsed' && !hasContent && bookmark.content_text === null);
+    const hasContent =
+        bookmark.content_html !== null && bookmark.content_html.length > 0;
+    const shouldPoll =
+        isPending ||
+        (bookmark.status === 'parsed' &&
+            !hasContent &&
+            bookmark.content_text === null);
 
     const updateProgressHttp = useHttp({
-        progress: bookmark.scroll_position
-    })
+        progress: bookmark.scroll_position,
+    });
 
     const scrollPercentage = useScrollPercentage();
     const debouncedScrollPercentage = useDebounce(scrollPercentage, 1000);
@@ -45,7 +50,10 @@ export default function BookmarkRead({ bookmark }: { bookmark: Bookmark }) {
     }, [debouncedScrollPercentage]);
 
     useEffect(() => {
-        if (!isRestored.current || updateProgressHttp.data.progress === bookmark.reading_progress) {
+        if (
+            !isRestored.current ||
+            updateProgressHttp.data.progress === bookmark.reading_progress
+        ) {
             return;
         }
 
@@ -91,21 +99,40 @@ export default function BookmarkRead({ bookmark }: { bookmark: Bookmark }) {
                 <header className={`mb-8 border-b pb-6`}>
                     {isPending ? (
                         <>
-                            <div className={`mb-3 h-8 w-3/4 animate-pulse rounded bg-muted`} />
-                            <div className={`h-4 w-1/3 animate-pulse rounded bg-muted`} />
+                            <div
+                                className={`mb-3 h-8 w-3/4 animate-pulse rounded bg-muted`}
+                            />
+                            <div
+                                className={`h-4 w-1/3 animate-pulse rounded bg-muted`}
+                            />
                         </>
                     ) : (
                         <>
-                            <h1 className={`mb-3 text-3xl font-bold leading-tight`}>
+                            <h1
+                                className={`mb-3 text-3xl leading-tight font-bold`}
+                            >
                                 {bookmark.title ?? bookmark.url}
                             </h1>
-                            <div className={`flex flex-wrap items-center gap-3 text-sm text-muted-foreground`}>
-                                {bookmark.domain && <span>{bookmark.domain}</span>}
-                                {bookmark.author && <span>· {bookmark.author}</span>}
+                            <div
+                                className={`flex flex-wrap items-center gap-3 text-sm text-muted-foreground`}
+                            >
+                                {bookmark.domain && (
+                                    <span>{bookmark.domain}</span>
+                                )}
+                                {bookmark.author && (
+                                    <span>· {bookmark.author}</span>
+                                )}
                                 {bookmark.category && (
                                     <span
                                         className={`rounded-full px-2 py-0.5 text-xs font-medium`}
-                                        style={{ backgroundColor: (bookmark.category.color ?? '#000') + '22', color: bookmark.category.color ?? undefined }}
+                                        style={{
+                                            backgroundColor:
+                                                (bookmark.category.color ??
+                                                    '#000') + '22',
+                                            color:
+                                                bookmark.category.color ??
+                                                undefined,
+                                        }}
                                     >
                                         {bookmark.category.name}
                                     </span>
@@ -116,7 +143,8 @@ export default function BookmarkRead({ bookmark }: { bookmark: Bookmark }) {
                                     rel={`noreferrer noopener`}
                                     className={`ml-auto inline-flex items-center gap-1 hover:text-foreground`}
                                 >
-                                    Open original <ExternalLinkIcon className={`size-3`} />
+                                    Open original{' '}
+                                    <ExternalLinkIcon className={`size-3`} />
                                 </a>
                             </div>
                         </>
@@ -125,18 +153,28 @@ export default function BookmarkRead({ bookmark }: { bookmark: Bookmark }) {
 
                 {hasContent ? (
                     <article
-                        className={`prose prose-lg dark:prose-invert max-w-none`}
-                        dangerouslySetInnerHTML={{ __html: bookmark.content_html as string }}
+                        className={`prose prose-lg max-w-none dark:prose-invert`}
+                        dangerouslySetInnerHTML={{
+                            __html: bookmark.content_html as string,
+                        }}
                     />
                 ) : isPending ? (
                     <div className={`flex flex-col gap-3`}>
                         {Array.from({ length: 8 }).map((_, i) => (
-                            <div key={i} className={`h-4 animate-pulse rounded bg-muted`} style={{ width: `${85 - (i % 4) * 10}%` }} />
+                            <div
+                                key={i}
+                                className={`h-4 animate-pulse rounded bg-muted`}
+                                style={{ width: `${85 - (i % 4) * 10}%` }}
+                            />
                         ))}
-                        <p className={`mt-4 text-sm text-muted-foreground`}>Extracting article content…</p>
+                        <p className={`mt-4 text-sm text-muted-foreground`}>
+                            Extracting article content…
+                        </p>
                     </div>
                 ) : (
-                    <div className={`rounded-lg border border-dashed p-8 text-center`}>
+                    <div
+                        className={`rounded-lg border border-dashed p-8 text-center`}
+                    >
                         <p className={`mb-4 text-muted-foreground`}>
                             We couldn't extract readable content from this page.
                         </p>
@@ -146,7 +184,8 @@ export default function BookmarkRead({ bookmark }: { bookmark: Bookmark }) {
                             rel={`noreferrer noopener`}
                             className={`inline-flex items-center gap-1 text-sm font-medium hover:underline`}
                         >
-                            Open original <ExternalLinkIcon className={`size-4`} />
+                            Open original{' '}
+                            <ExternalLinkIcon className={`size-4`} />
                         </a>
                     </div>
                 )}
@@ -158,6 +197,9 @@ export default function BookmarkRead({ bookmark }: { bookmark: Bookmark }) {
 BookmarkRead.layout = ({ bookmark }: { bookmark: Bookmark }) => ({
     breadcrumbs: [
         { title: 'Bookmarks', href: bookmarks.index().url },
-        { title: bookmark.title ?? 'Reader', href: bookmarks.read(bookmark.id).url },
+        {
+            title: bookmark.title ?? 'Reader',
+            href: bookmarks.read(bookmark.id).url,
+        },
     ],
 });
