@@ -166,3 +166,23 @@ L'endpoint `POST /api/v1/login` accetta `{ email, password, device_name }` e res
 ### Aggiornamento dello spec
 
 Lo spec viene rigenerato automaticamente a ogni richiesta (in dev). Quando aggiungi nuove rotte o nuovi Form Request / Resource, basta ricaricare la pagina `/docs/api`.
+
+---
+
+## Estensione browser
+
+Codice in [`apps/chrome-extension/`](apps/chrome-extension). MVP cross-browser (Chrome / Edge / Firefox) basato su Manifest V3, TypeScript e Vite. Permette di salvare l'URL della tab corrente con assegnazione opzionale di una categoria.
+
+### Build rapido
+
+```bash
+cd apps/chrome-extension
+npm install
+npm run build
+```
+
+Carica `apps/chrome-extension/dist/` come extension non pacchettizzata da `chrome://extensions` con Developer mode attivo. Vedi il [README dell'estensione](apps/chrome-extension/README.md) per istruzioni di installazione e configurazione complete.
+
+### Autenticazione
+
+L'estensione usa un Personal Access Token con preset **Browser Extension** (ability: `bookmarks:create`, `categories:read`). Genera il token da `/settings/api-tokens` nella web app e incollalo nelle Options dell'extension.
