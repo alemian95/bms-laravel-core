@@ -1,6 +1,6 @@
 import { Form, Head, router, usePage } from '@inertiajs/react';
-import { Trash2 } from 'lucide-react';
-import { useState } from 'react';
+import { Check, Copy, Trash2 } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import ApiTokenController from '@/actions/App/Http/Controllers/Settings/ApiTokenController';
 import Heading from '@/components/heading';
 import InputError from '@/components/input-error';
@@ -45,10 +45,31 @@ export default function ApiTokens() {
     const newToken = props.flash?.newToken;
 
     const [preset, setPreset] = useState<string>(presets[0]?.value ?? '');
+    const [copied, setCopied] = useState(false);
+
+    useEffect(() => {
+        if (!copied) return;
+        const timeout = setTimeout(() => setCopied(false), 2000);
+        return () => clearTimeout(timeout);
+    }, [copied]);
 
     const revoke = (id: number) => {
         if (confirm('Revoke this token? This action cannot be undone.')) {
             router.delete(destroy(id).url);
+        }
+    };
+
+    const copyToken = async (token: string) => {
+        try {
+            await navigator.clipboard.writeText(token);
+            setCopied(true);
+        } catch {
+            // Clipboard API can fail in non-secure contexts; fallback: select the code element
+            window
+                .getSelection()
+                ?.selectAllChildren(
+                    document.getElementById('plain-text-token') as Node,
+                );
         }
     };
 
@@ -73,9 +94,35 @@ export default function ApiTokens() {
                         <p className="mt-1 text-xs text-muted-foreground">
                             Copy this token now — it will not be shown again.
                         </p>
-                        <code className="mt-2 block rounded bg-background p-2 text-xs break-all">
-                            {newToken.plainTextToken}
-                        </code>
+                        <div className="mt-2 flex items-start gap-2">
+                            <code
+                                id="plain-text-token"
+                                className="flex-1 rounded bg-background p-2 font-mono text-xs break-all"
+                            >
+                                {newToken.plainTextToken}
+                            </code>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() =>
+                                    copyToken(newToken.plainTextToken)
+                                }
+                                aria-label="Copy token to clipboard"
+                            >
+                                {copied ? (
+                                    <>
+                                        <Check className="h-4 w-4" />
+                                        Copied
+                                    </>
+                                ) : (
+                                    <>
+                                        <Copy className="h-4 w-4" />
+                                        Copy
+                                    </>
+                                )}
+                            </Button>
+                        </div>
                     </div>
                 )}
 
