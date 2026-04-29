@@ -137,3 +137,32 @@ sail artisan queue:work
 ```bash
 sail artisan test --compact
 ```
+
+---
+
+## Documentazione e test delle API (Swagger UI)
+
+Le API REST esposte sotto `/api/v1/...` sono documentate automaticamente tramite **[Scramble](https://scramble.dedoc.co/)**, che ispeziona Form Request, API Resources e route signatures per generare uno spec OpenAPI 3.1 e una Swagger UI navigabile.
+
+### Accesso
+
+Con i container Sail attivi, apri:
+
+- **Swagger UI:** [http://localhost/docs/api](http://localhost/docs/api)
+- **OpenAPI JSON:** [http://localhost/docs/api.json](http://localhost/docs/api.json)
+
+L'accesso è regolato dal Gate `viewApiDocs` definito in `AppServiceProvider`. Per default è consentito in tutti gli ambienti **eccetto produzione**: quando `APP_ENV=production` la UI risponde `403`. Se vuoi cambiare la policy (es. richiedere login admin), modifica la definizione del Gate.
+
+### Workflow per testare un endpoint autenticato
+
+1. Vai su `http://localhost/settings/api-tokens` (devi essere loggato in web).
+2. Crea un nuovo token scegliendo un preset (`Browser Extension`, `Mobile App`, `Full Access`). Il token in chiaro è mostrato **una sola volta** subito dopo la creazione — copialo.
+3. Apri la Swagger UI su `/docs/api` e clicca il pulsante **"Authorize"** in alto a destra.
+4. Incolla il token nel campo `bearerAuth` e conferma.
+5. Espandi qualsiasi endpoint, clicca **"Try it out"**, compila i parametri e premi **"Execute"** per inviare la richiesta reale: la UI userà il Bearer token per tutte le rotte sotto `auth:sanctum`.
+
+L'endpoint `POST /api/v1/login` accetta `{ email, password, device_name }` e restituisce un token di login (separato dai PAT generati dalla dashboard) — utile per testare il flusso di autenticazione mobile.
+
+### Aggiornamento dello spec
+
+Lo spec viene rigenerato automaticamente a ogni richiesta (in dev). Quando aggiungi nuove rotte o nuovi Form Request / Resource, basta ricaricare la pagina `/docs/api`.
