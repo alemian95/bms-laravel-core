@@ -30,5 +30,10 @@ Route::prefix('v1')->group(function () {
         Route::post('bookmarks', [BookmarkController::class, 'store'])
             ->middleware('ability:bookmarks:create')
             ->name('api.v1.bookmarks.store');
+
+        Route::get('bookmarks/{bookmark}', [BookmarkController::class, 'show'])
+            ->whereNumber('bookmark')
+            ->middleware('ability:bookmarks:read')
+            ->name('api.v1.bookmarks.show');
     });
 });

@@ -8,10 +8,12 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\IndexBookmarksRequest;
 use App\Http\Requests\Api\V1\StoreBookmarkRequest;
 use App\Http\Resources\Api\V1\BookmarkResource;
+use App\Models\Bookmark;
 use App\Services\Bookmarks\BookmarkCreator;
 use App\Services\Bookmarks\BookmarkLister;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\ValidationException;
 
 class BookmarkController extends Controller
@@ -21,6 +23,13 @@ class BookmarkController extends Controller
         $result = $lister->list($request->user(), $request->toFilters());
 
         return BookmarkResource::collection($result['paginator']);
+    }
+
+    public function show(Bookmark $bookmark): BookmarkResource
+    {
+        Gate::authorize('view', $bookmark);
+
+        return BookmarkResource::make($bookmark->load('category'));
     }
 
     public function store(StoreBookmarkRequest $request, BookmarkCreator $creator): BookmarkResource|JsonResponse
