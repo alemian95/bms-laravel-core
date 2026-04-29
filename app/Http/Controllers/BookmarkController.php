@@ -2,111 +2,48 @@
 
 namespace App\Http\Controllers;
 
-use App\Jobs\ExtractBookmarkMetadataJob;
-use App\Jobs\ParseArticleContentJob;
+use App\Exceptions\Bookmarks\CategoryNotOwnedException;
+use App\Exceptions\Bookmarks\DuplicateBookmarkException;
+use App\Http\Requests\Bookmarks\IndexBookmarksRequest;
+use App\Http\Requests\Bookmarks\StoreBookmarkRequest;
+use App\Http\Requests\Bookmarks\UpdateBookmarkProgressRequest;
 use App\Models\Bookmark;
 use App\Models\Category;
-use App\Services\Search\BookmarkSearchService;
+use App\Services\Bookmarks\BookmarkCreator;
+use App\Services\Bookmarks\BookmarkLister;
+use App\Services\Bookmarks\BookmarkProgressUpdater;
+use App\Services\Bookmarks\BookmarkRemover;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 
 class BookmarkController extends Controller
 {
-    public function index(Request $request, BookmarkSearchService $search)
+    public function index(IndexBookmarksRequest $request, BookmarkLister $lister)
     {
-        $validated = $request->validate([
-            'q' => 'nullable|string|max:200',
-            'category' => 'nullable|string|max:200',
-        ]);
-
-        $userId = $request->user()->id;
-        $perPage = 9;
-        $page = max((int) $request->integer('page', 1), 1);
-        $query = trim((string) ($validated['q'] ?? ''));
-        $categorySlug = $validated['category'] ?? null;
-
-        $activeCategory = $categorySlug
-            ? Category::where('user_id', $userId)->where('slug', $categorySlug)->first()
-            : null;
-
-        $highlights = [];
-
-        if ($query !== '') {
-            $result = $search->search(
-                query: $query,
-                userId: $userId,
-                categoryId: $activeCategory?->id,
-                perPage: $perPage,
-                page: $page,
-                path: $request->url(),
-                queryParams: $request->query(),
-            );
-            $bookmarks = $result['paginator'];
-            $highlights = $result['highlights'];
-        } else {
-            $bookmarks = Bookmark::query()
-                ->where('user_id', $userId)
-                ->with('category:id,name,slug,color')
-                ->when($activeCategory, fn ($q) => $q->where('category_id', $activeCategory->id))
-                ->orderByDesc('created_at')
-                ->paginate($perPage)
-                ->withQueryString();
-        }
+        $user = $request->user();
+        $result = $lister->list($user, $request->toFilters());
 
         return Inertia::render('bookmarks/index', [
-            'bookmarks' => $bookmarks,
-            'categories' => Category::where('user_id', $userId)->orderBy('name')->get(),
-            'activeCategory' => $activeCategory?->slug,
-            'q' => $query !== '' ? $query : null,
-            'highlights' => $highlights,
+            'bookmarks' => $result['paginator'],
+            'categories' => Category::where('user_id', $user->id)->orderBy('name')->get(),
+            'activeCategory' => $result['activeCategory']?->slug,
+            'q' => $request->filled('q') ? trim($request->string('q')->toString()) : null,
+            'highlights' => $result['highlights'],
         ]);
     }
 
-    public function store(Request $request)
+    public function store(StoreBookmarkRequest $request, BookmarkCreator $creator)
     {
-        $validated = $request->validate([
-            'url' => 'required|url:http,https|max:2048',
-            'category_id' => 'nullable|integer|exists:categories,id',
-        ]);
+        try {
+            $creator->create($request->user(), $request->toData());
+        } catch (CategoryNotOwnedException) {
+            Inertia::flash('toast', ['type' => 'error', 'message' => 'Invalid category']);
 
-        $userId = $request->user()->id;
-        $normalizedUrl = $this->normalizeUrl($validated['url']);
-
-        if (! empty($validated['category_id'])) {
-            $categoryBelongsToUser = Category::where('id', $validated['category_id'])
-                ->where('user_id', $userId)
-                ->exists();
-
-            if (! $categoryBelongsToUser) {
-                Inertia::flash('toast', ['type' => 'error', 'message' => 'Invalid category']);
-
-                return redirect()->route('bookmarks.index');
-            }
-        }
-
-        $alreadyExists = Bookmark::where('user_id', $userId)
-            ->where('url', $normalizedUrl)
-            ->exists();
-
-        if ($alreadyExists) {
+            return redirect()->route('bookmarks.index');
+        } catch (DuplicateBookmarkException) {
             return redirect()->route('bookmarks.index')
                 ->withErrors(['url' => 'You have already saved this URL.']);
-        }
-
-        try {
-            $bookmark = Bookmark::create([
-                'user_id' => $userId,
-                'category_id' => $validated['category_id'] ?? null,
-                'url' => $normalizedUrl,
-                'status' => 'pending',
-            ]);
-
-            Bus::chain([
-                new ExtractBookmarkMetadataJob($bookmark),
-                new ParseArticleContentJob($bookmark),
-            ])->dispatch();
         } catch (\Exception $e) {
             Inertia::flash('toast', ['type' => 'error', 'message' => $e->getMessage()]);
 
@@ -127,26 +64,24 @@ class BookmarkController extends Controller
         ]);
     }
 
-    public function updateProgress(Request $request, Bookmark $bookmark)
-    {
+    public function updateProgress(
+        UpdateBookmarkProgressRequest $request,
+        Bookmark $bookmark,
+        BookmarkProgressUpdater $updater,
+    ) {
         Gate::authorize('update', $bookmark);
-        $request->validate([
-            'progress' => 'required|integer|min:0|max:100',
-        ]);
-        $bookmark->update([
-            'scroll_position' => $request->progress,
-            'reading_progress' => max($request->progress, $bookmark->reading_progress),
-        ]);
+
+        $updater->update($bookmark, $request->progress());
 
         return response()->noContent();
     }
 
-    public function destroy(Request $request, Bookmark $bookmark)
+    public function destroy(Request $request, Bookmark $bookmark, BookmarkRemover $remover)
     {
         Gate::authorize('delete', $bookmark);
 
         try {
-            $bookmark->delete();
+            $remover->delete($bookmark);
         } catch (\Exception $e) {
             Inertia::flash('toast', ['type' => 'error', 'message' => $e->getMessage()]);
 
@@ -156,13 +91,5 @@ class BookmarkController extends Controller
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Bookmark deleted successfully']);
 
         return redirect()->route('bookmarks.index');
-    }
-
-    private function normalizeUrl(string $url): string
-    {
-        $url = trim($url);
-        $hashPos = strpos($url, '#');
-
-        return $hashPos === false ? $url : substr($url, 0, $hashPos);
     }
 }
