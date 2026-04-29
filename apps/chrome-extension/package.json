@@ -1,0 +1,21 @@
+{
+    "name": "bms-chrome-extension",
+    "version": "0.1.0",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "dev": "vite build --watch --mode development",
+        "build": "vite build",
+        "build:zip": "vite build && cd dist && zip -r ../bms-chrome-extension.zip ./*"
+    },
+    "devDependencies": {
+        "@types/chrome": "^0.0.291",
+        "@types/webextension-polyfill": "^0.12.3",
+        "typescript": "^5.7.2",
+        "vite": "^7.0.0",
+        "vite-plugin-web-extension": "^4.4.4"
+    },
+    "dependencies": {
+        "webextension-polyfill": "^0.12.0"
+    }
+}
