@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\V1\Auth\LoginController;
 use App\Http\Controllers\Api\V1\Auth\LogoutController;
+use App\Http\Controllers\Api\V1\CategoryController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -16,5 +17,9 @@ Route::prefix('v1')->group(function () {
         Route::get('user', function (Request $request) {
             return $request->user();
         })->name('api.v1.user');
+
+        Route::get('categories', [CategoryController::class, 'index'])
+            ->middleware('ability:categories:read')
+            ->name('api.v1.categories.index');
     });
 });
