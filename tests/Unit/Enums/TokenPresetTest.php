@@ -8,11 +8,12 @@ it('browser extension preset has create+read abilities', function () {
         ->toBe([TokenAbility::BookmarksCreate->value, TokenAbility::CategoriesRead->value]);
 });
 
-it('mobile app preset has read+create+categories', function () {
+it('mobile app preset has read+create+update+categories', function () {
     expect(TokenPreset::MobileApp->abilities())
         ->toBe([
             TokenAbility::BookmarksRead->value,
             TokenAbility::BookmarksCreate->value,
+            TokenAbility::BookmarksUpdate->value,
             TokenAbility::CategoriesRead->value,
         ]);
 });

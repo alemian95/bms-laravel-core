@@ -21,6 +21,7 @@ enum TokenPreset: string
             self::MobileApp => [
                 TokenAbility::BookmarksRead->value,
                 TokenAbility::BookmarksCreate->value,
+                TokenAbility::BookmarksUpdate->value,
                 TokenAbility::CategoriesRead->value,
             ],
             self::FullAccess => ['*'],

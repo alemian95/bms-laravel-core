@@ -6,6 +6,7 @@ enum TokenAbility: string
 {
     case BookmarksRead = 'bookmarks:read';
     case BookmarksCreate = 'bookmarks:create';
+    case BookmarksUpdate = 'bookmarks:update';
     case BookmarksDelete = 'bookmarks:delete';
     case CategoriesRead = 'categories:read';
     case CategoriesWrite = 'categories:write';
