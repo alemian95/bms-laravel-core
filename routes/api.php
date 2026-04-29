@@ -35,5 +35,10 @@ Route::prefix('v1')->group(function () {
             ->whereNumber('bookmark')
             ->middleware('ability:bookmarks:read')
             ->name('api.v1.bookmarks.show');
+
+        Route::delete('bookmarks/{bookmark}', [BookmarkController::class, 'destroy'])
+            ->whereNumber('bookmark')
+            ->middleware('ability:bookmarks:delete')
+            ->name('api.v1.bookmarks.destroy');
     });
 });

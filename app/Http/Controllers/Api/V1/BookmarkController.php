@@ -11,8 +11,10 @@ use App\Http\Resources\Api\V1\BookmarkResource;
 use App\Models\Bookmark;
 use App\Services\Bookmarks\BookmarkCreator;
 use App\Services\Bookmarks\BookmarkLister;
+use App\Services\Bookmarks\BookmarkRemover;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\ValidationException;
 
@@ -47,5 +49,14 @@ class BookmarkController extends Controller
         return BookmarkResource::make($bookmark)
             ->response()
             ->setStatusCode(201);
+    }
+
+    public function destroy(Bookmark $bookmark, BookmarkRemover $remover): Response
+    {
+        Gate::authorize('delete', $bookmark);
+
+        $remover->delete($bookmark);
+
+        return response()->noContent();
     }
 }
