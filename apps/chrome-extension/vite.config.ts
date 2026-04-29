@@ -4,6 +4,8 @@ import { resolve } from 'node:path';
 
 export default defineConfig({
     root: 'src',
+    publicDir: resolve(__dirname, 'public'),
+    base: '',
     build: {
         outDir: '../dist',
         emptyOutDir: true,
@@ -11,9 +13,6 @@ export default defineConfig({
     plugins: [
         webExtension({
             manifest: resolve(__dirname, 'src/manifest.json'),
-            additionalInputs: {
-                html: ['popup.html', 'options.html'],
-            },
         }),
     ],
 });
