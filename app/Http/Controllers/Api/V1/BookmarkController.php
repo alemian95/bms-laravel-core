@@ -1,0 +1,32 @@
+<?php
+
+namespace App\Http\Controllers\Api\V1;
+
+use App\Exceptions\Bookmarks\CategoryNotOwnedException;
+use App\Exceptions\Bookmarks\DuplicateBookmarkException;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\V1\StoreBookmarkRequest;
+use App\Http\Resources\Api\V1\BookmarkResource;
+use App\Services\Bookmarks\BookmarkCreator;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Validation\ValidationException;
+
+class BookmarkController extends Controller
+{
+    public function store(StoreBookmarkRequest $request, BookmarkCreator $creator): BookmarkResource|JsonResponse
+    {
+        try {
+            $bookmark = $creator->create($request->user(), $request->toData());
+        } catch (DuplicateBookmarkException) {
+            return response()->json(['message' => 'Bookmark already exists.'], 409);
+        } catch (CategoryNotOwnedException) {
+            throw ValidationException::withMessages([
+                'category_id' => 'The selected category is invalid.',
+            ]);
+        }
+
+        return BookmarkResource::make($bookmark)
+            ->response()
+            ->setStatusCode(201);
+    }
+}
