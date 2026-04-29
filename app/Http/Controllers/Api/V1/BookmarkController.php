@@ -7,10 +7,12 @@ use App\Exceptions\Bookmarks\DuplicateBookmarkException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\IndexBookmarksRequest;
 use App\Http\Requests\Api\V1\StoreBookmarkRequest;
+use App\Http\Requests\Bookmarks\UpdateBookmarkProgressRequest;
 use App\Http\Resources\Api\V1\BookmarkResource;
 use App\Models\Bookmark;
 use App\Services\Bookmarks\BookmarkCreator;
 use App\Services\Bookmarks\BookmarkLister;
+use App\Services\Bookmarks\BookmarkProgressUpdater;
 use App\Services\Bookmarks\BookmarkRemover;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -56,6 +58,18 @@ class BookmarkController extends Controller
         Gate::authorize('delete', $bookmark);
 
         $remover->delete($bookmark);
+
+        return response()->noContent();
+    }
+
+    public function updateProgress(
+        UpdateBookmarkProgressRequest $request,
+        Bookmark $bookmark,
+        BookmarkProgressUpdater $updater,
+    ): Response {
+        Gate::authorize('update', $bookmark);
+
+        $updater->update($bookmark, $request->progress());
 
         return response()->noContent();
     }

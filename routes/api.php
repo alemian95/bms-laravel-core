@@ -40,5 +40,10 @@ Route::prefix('v1')->group(function () {
             ->whereNumber('bookmark')
             ->middleware('ability:bookmarks:delete')
             ->name('api.v1.bookmarks.destroy');
+
+        Route::patch('bookmarks/{bookmark}/progress', [BookmarkController::class, 'updateProgress'])
+            ->whereNumber('bookmark')
+            ->middleware('ability:bookmarks:update')
+            ->name('api.v1.bookmarks.progress');
     });
 });
