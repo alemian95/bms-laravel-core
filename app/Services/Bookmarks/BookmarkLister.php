@@ -20,9 +20,15 @@ class BookmarkLister
      */
     public function list(User $user, ListBookmarksFilters $filters): array
     {
-        $activeCategory = $filters->categorySlug
-            ? Category::where('user_id', $user->id)->where('slug', $filters->categorySlug)->first()
-            : null;
+        $activeCategory = match (true) {
+            $filters->categoryId !== null => Category::where('user_id', $user->id)
+                ->whereKey($filters->categoryId)
+                ->first(),
+            $filters->categorySlug !== null => Category::where('user_id', $user->id)
+                ->where('slug', $filters->categorySlug)
+                ->first(),
+            default => null,
+        };
 
         $query = trim((string) ($filters->query ?? ''));
 
