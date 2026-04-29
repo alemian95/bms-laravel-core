@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Categories\StoreCategoryRequest;
+use App\Http\Requests\Categories\UpdateCategoryRequest;
 use App\Models\Category;
-use Illuminate\Http\Request;
-use Illuminate\Support\Str;
+use App\Services\Categories\CategoryCreator;
+use App\Services\Categories\CategoryRemover;
+use App\Services\Categories\CategoryUpdater;
 use Inertia\Inertia;
 
 class CategoryController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
         return Inertia::render('categories/index', [
@@ -19,35 +19,10 @@ class CategoryController extends Controller
         ]);
     }
 
-    //    /**
-    //     * Show the form for creating a new resource.
-    //     */
-    //    public function create()
-    //    {
-    //        return Inertia::render('categories/form', []);
-    //    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function store(StoreCategoryRequest $request, CategoryCreator $creator)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'color' => 'nullable|string|max:7',
-        ]);
-
-        $slug = Str::slug($validated['name']);
-        $originalSlug = $slug;
-        $count = 2;
-
-        while (Category::where('user_id', $request->user()->id)->where('slug', $slug)->exists()) {
-            $slug = "{$originalSlug}-{$count}";
-            $count++;
-        }
-
         try {
-            Category::create([...$validated, 'slug' => $slug, 'user_id' => $request->user()->id]);
+            $creator->create($request->user(), $request->toData());
         } catch (\Exception $e) {
             Inertia::flash('toast', ['type' => 'error', 'message' => $e->getMessage()]);
 
@@ -59,53 +34,10 @@ class CategoryController extends Controller
         return redirect()->route('categories.index');
     }
 
-    //    /**
-    //     * Display the specified resource.
-    //     */
-    //    public function show(Category $category)
-    //    {
-    //        return Inertia::render('categories/show', [
-    //            'category' => $category
-    //        ]);
-    //    }
-
-    //    /**
-    //     * Show the form for editing the specified resource.
-    //     */
-    //    public function edit(Category $category)
-    //    {
-    //        return Inertia::render('categories/form', [
-    //            'category' => $category
-    //        ]);
-    //    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Category $category)
+    public function update(UpdateCategoryRequest $request, Category $category, CategoryUpdater $updater)
     {
-        $validated = $request->validate([
-            'name' => 'sometimes|required|string|max:255',
-            'color' => 'sometimes|nullable|string|max:7',
-        ]);
-
-        if (isset($validated['name'])) {
-            $slug = Str::slug($validated['name']);
-            $originalSlug = $slug;
-            $count = 2;
-
-            while (Category::where('user_id', $request->user()->id)
-                ->where('slug', $slug)
-                ->where('id', '!=', $category->id)
-                ->exists()) {
-                $slug = "{$originalSlug}-{$count}";
-                $count++;
-            }
-            $validated['slug'] = $slug;
-        }
-
         try {
-            $category->update($validated);
+            $updater->update($category, $request->toData());
         } catch (\Exception $e) {
             Inertia::flash('toast', ['type' => 'error', 'message' => $e->getMessage()]);
 
@@ -117,13 +49,10 @@ class CategoryController extends Controller
         return redirect()->route('categories.index');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Category $category)
+    public function destroy(Category $category, CategoryRemover $remover)
     {
         try {
-            $category->delete();
+            $remover->delete($category);
         } catch (\Exception $e) {
             Inertia::flash('toast', ['type' => 'error', 'message' => $e->getMessage()]);
 
