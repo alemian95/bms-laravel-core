@@ -23,6 +23,10 @@ Route::prefix('v1')->group(function () {
             ->middleware('ability:categories:read')
             ->name('api.v1.categories.index');
 
+        Route::get('bookmarks', [BookmarkController::class, 'index'])
+            ->middleware('ability:bookmarks:read')
+            ->name('api.v1.bookmarks.index');
+
         Route::post('bookmarks', [BookmarkController::class, 'store'])
             ->middleware('ability:bookmarks:create')
             ->name('api.v1.bookmarks.store');
