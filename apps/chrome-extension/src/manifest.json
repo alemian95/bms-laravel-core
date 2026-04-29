@@ -1,0 +1,29 @@
+{
+    "manifest_version": 3,
+    "name": "BMS — Save Bookmark",
+    "version": "0.1.0",
+    "description": "Save the current tab URL to your Bookmark Management System.",
+    "action": {
+        "default_popup": "popup.html",
+        "default_icon": {
+            "48": "icons/icon-48.png",
+            "128": "icons/icon-128.png"
+        }
+    },
+    "options_page": "options.html",
+    "background": {
+        "service_worker": "background.ts",
+        "type": "module"
+    },
+    "permissions": ["activeTab", "storage"],
+    "host_permissions": ["<all_urls>"],
+    "icons": {
+        "48": "icons/icon-48.png",
+        "128": "icons/icon-128.png"
+    },
+    "browser_specific_settings": {
+        "gecko": {
+            "id": "bms-extension@local"
+        }
+    }
+}
