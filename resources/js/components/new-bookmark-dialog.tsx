@@ -1,6 +1,6 @@
 import { useForm } from '@inertiajs/react';
 import { PlusIcon } from 'lucide-react';
-import type { FormEventHandler} from 'react';
+import type { FormEventHandler } from 'react';
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
