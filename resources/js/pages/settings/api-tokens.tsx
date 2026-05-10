@@ -33,16 +33,18 @@ type Preset = {
 type PageProps = {
     tokens: Token[];
     presets: Preset[];
-    flash?: {
-        newToken?: { name: string; plainTextToken: string };
-    };
+};
+
+type FlashData = {
+    newToken?: { name: string; plainTextToken: string };
 };
 
 export default function ApiTokens() {
-    const { props } = usePage<PageProps>();
-    const tokens = props.tokens ?? [];
-    const presets = props.presets ?? [];
-    const newToken = props.flash?.newToken;
+    const page = usePage<PageProps>();
+    const tokens = page.props.tokens ?? [];
+    const presets = page.props.presets ?? [];
+    const flash = (page as unknown as { flash?: FlashData }).flash;
+    const newToken = flash?.newToken;
 
     const [preset, setPreset] = useState<string>(presets[0]?.value ?? '');
     const [copied, setCopied] = useState(false);
