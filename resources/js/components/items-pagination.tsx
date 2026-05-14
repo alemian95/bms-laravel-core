@@ -39,7 +39,7 @@ export function ItemsPagination({
                             }
 
                             return (
-                                <PaginationItem>
+                                <PaginationItem key={index}>
                                     <PaginationLink
                                         href={link.url}
                                         isActive={link.active}
