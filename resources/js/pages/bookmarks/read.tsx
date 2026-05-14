@@ -1,4 +1,4 @@
-import { Head, Link, router, useHttp } from '@inertiajs/react';
+import { Head, Link, router, useHttp, usePoll } from '@inertiajs/react';
 import { ArrowLeftIcon, ExternalLinkIcon } from 'lucide-react';
 import { useEffect, useRef } from 'react';
 
@@ -72,17 +72,7 @@ export default function BookmarkRead({ bookmark }: { bookmark: Bookmark }) {
         }
     }, [hasContent, bookmark.reading_progress]);
 
-    useEffect(() => {
-        if (!shouldPoll) {
-            return;
-        }
-
-        const interval = setInterval(() => {
-            router.reload({ only: ['bookmark'] });
-        }, 3000);
-
-        return () => clearInterval(interval);
-    }, [shouldPoll]);
+    usePoll(3000, { only: ['bookmark'] }, { autoStart: shouldPoll });
 
     return (
         <>

@@ -1,4 +1,4 @@
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, Link, router, usePoll } from '@inertiajs/react';
 import { SearchIcon, XIcon } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
@@ -57,17 +57,7 @@ export default function BookmarksIndex({
 
     const hasPending = items.some((b) => b.status === 'pending');
 
-    useEffect(() => {
-        if (!hasPending) {
-            return;
-        }
-
-        const interval = setInterval(() => {
-            router.reload({ only: ['bookmarks'] });
-        }, 3000);
-
-        return () => clearInterval(interval);
-    }, [hasPending]);
+    usePoll(3000, { only: ['bookmarks'] }, { autoStart: hasPending });
 
     return (
         <>
