@@ -50,6 +50,7 @@ const applyTheme = (appearance: Appearance): void => {
 
     document.documentElement.classList.toggle('dark', isDark);
     document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
+    document.documentElement.style.backgroundColor = isDark ? 'oklch(0.145 0 0)' : 'oklch(1 0 0)';
 };
 
 const subscribe = (callback: () => void) => {
