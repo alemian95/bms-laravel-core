@@ -123,6 +123,7 @@ Mailpit è raggiungibile su `http://localhost:8025` e Meilisearch su `http://loc
 Per popolare l'indice Meilisearch con i bookmark esistenti:
 
 ```bash
+sail artisan scout:sync-index-settings
 sail artisan scout:import "App\Models\Bookmark"
 ```
 
