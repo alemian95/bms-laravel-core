@@ -10,10 +10,7 @@ class LogoutController extends Controller
 {
     public function __invoke(Request $request): Response
     {
-        $token = $request->user()->currentAccessToken();
-        if ($token) {
-            $token->delete();
-        }
+        $request->user()->currentAccessToken()->delete();
 
         return response()->noContent();
     }
