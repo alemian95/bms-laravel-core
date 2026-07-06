@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests\Bookmarks;
 
+use App\Data\Bookmarks\UpdateBookmarkProgressData;
+use App\Models\Bookmark;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateBookmarkProgressRequest extends FormRequest
@@ -21,8 +23,11 @@ class UpdateBookmarkProgressRequest extends FormRequest
         ];
     }
 
-    public function progress(): int
+    public function toData(Bookmark $bookmark): UpdateBookmarkProgressData
     {
-        return $this->integer('progress');
+        return new UpdateBookmarkProgressData(
+            bookmark: $bookmark,
+            progress: $this->integer('progress'),
+        );
     }
 }

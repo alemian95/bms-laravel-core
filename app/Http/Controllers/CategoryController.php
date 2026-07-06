@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\Categories\CreateCategory;
+use App\Actions\Categories\DeleteCategory;
+use App\Actions\Categories\UpdateCategory;
 use App\Http\Requests\Categories\StoreCategoryRequest;
 use App\Http\Requests\Categories\UpdateCategoryRequest;
 use App\Models\Category;
-use App\Services\Categories\CategoryCreator;
-use App\Services\Categories\CategoryRemover;
-use App\Services\Categories\CategoryUpdater;
 use Inertia\Inertia;
 
 class CategoryController extends Controller
@@ -19,10 +19,10 @@ class CategoryController extends Controller
         ]);
     }
 
-    public function store(StoreCategoryRequest $request, CategoryCreator $creator)
+    public function store(StoreCategoryRequest $request, CreateCategory $action)
     {
         try {
-            $creator->create($request->user(), $request->toData());
+            $action->handle($request->toData());
         } catch (\Exception $e) {
             Inertia::flash('toast', ['type' => 'error', 'message' => $e->getMessage()]);
 
@@ -34,10 +34,10 @@ class CategoryController extends Controller
         return redirect()->route('categories.index');
     }
 
-    public function update(UpdateCategoryRequest $request, Category $category, CategoryUpdater $updater)
+    public function update(UpdateCategoryRequest $request, Category $category, UpdateCategory $action)
     {
         try {
-            $updater->update($category, $request->toData());
+            $action->handle($request->toData($category));
         } catch (\Exception $e) {
             Inertia::flash('toast', ['type' => 'error', 'message' => $e->getMessage()]);
 
@@ -49,10 +49,10 @@ class CategoryController extends Controller
         return redirect()->route('categories.index');
     }
 
-    public function destroy(Category $category, CategoryRemover $remover)
+    public function destroy(Category $category, DeleteCategory $action)
     {
         try {
-            $remover->delete($category);
+            $action->handle($category);
         } catch (\Exception $e) {
             Inertia::flash('toast', ['type' => 'error', 'message' => $e->getMessage()]);
 

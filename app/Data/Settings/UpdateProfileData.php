@@ -1,15 +1,14 @@
 <?php
 
-namespace App\Data\Auth;
+namespace App\Data\Settings;
 
-use App\Enums\TokenPreset;
 use App\Models\User;
 
-final readonly class IssueTokenData
+final readonly class UpdateProfileData
 {
     public function __construct(
         public User $user,
         public string $name,
-        public TokenPreset $preset,
+        public string $email,
     ) {}
 }

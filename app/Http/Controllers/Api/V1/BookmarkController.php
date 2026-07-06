@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Actions\Bookmarks\CreateBookmark;
+use App\Actions\Bookmarks\DeleteBookmark;
+use App\Actions\Bookmarks\UpdateBookmarkProgress;
 use App\Exceptions\Bookmarks\CategoryNotOwnedException;
 use App\Exceptions\Bookmarks\DuplicateBookmarkException;
 use App\Http\Controllers\Controller;
@@ -10,10 +13,7 @@ use App\Http\Requests\Api\V1\StoreBookmarkRequest;
 use App\Http\Requests\Bookmarks\UpdateBookmarkProgressRequest;
 use App\Http\Resources\Api\V1\BookmarkResource;
 use App\Models\Bookmark;
-use App\Services\Bookmarks\BookmarkCreator;
 use App\Services\Bookmarks\BookmarkLister;
-use App\Services\Bookmarks\BookmarkProgressUpdater;
-use App\Services\Bookmarks\BookmarkRemover;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
@@ -36,10 +36,10 @@ class BookmarkController extends Controller
         return BookmarkResource::make($bookmark->load('category'));
     }
 
-    public function store(StoreBookmarkRequest $request, BookmarkCreator $creator): BookmarkResource|JsonResponse
+    public function store(StoreBookmarkRequest $request, CreateBookmark $action): BookmarkResource|JsonResponse
     {
         try {
-            $bookmark = $creator->create($request->user(), $request->toData());
+            $bookmark = $action->handle($request->toData());
         } catch (DuplicateBookmarkException) {
             return response()->json(['message' => 'Bookmark already exists.'], 409);
         } catch (CategoryNotOwnedException) {
@@ -53,11 +53,11 @@ class BookmarkController extends Controller
             ->setStatusCode(201);
     }
 
-    public function destroy(Bookmark $bookmark, BookmarkRemover $remover): Response
+    public function destroy(Bookmark $bookmark, DeleteBookmark $action): Response
     {
         Gate::authorize('delete', $bookmark);
 
-        $remover->delete($bookmark);
+        $action->handle($bookmark);
 
         return response()->noContent();
     }
@@ -65,11 +65,11 @@ class BookmarkController extends Controller
     public function updateProgress(
         UpdateBookmarkProgressRequest $request,
         Bookmark $bookmark,
-        BookmarkProgressUpdater $updater,
+        UpdateBookmarkProgress $action,
     ): Response {
         Gate::authorize('update', $bookmark);
 
-        $updater->update($bookmark, $request->progress());
+        $action->handle($request->toData($bookmark));
 
         return response()->noContent();
     }

@@ -26,6 +26,7 @@ class StoreCategoryRequest extends FormRequest
     public function toData(): CreateCategoryData
     {
         return new CreateCategoryData(
+            user: $this->user(),
             name: $this->string('name')->toString(),
             color: $this->filled('color') ? $this->string('color')->toString() : null,
         );

@@ -26,6 +26,7 @@ class StoreBookmarkRequest extends FormRequest
     public function toData(): CreateBookmarkData
     {
         return new CreateBookmarkData(
+            user: $this->user(),
             url: $this->string('url')->toString(),
             categoryId: $this->integer('category_id') ?: null,
         );
