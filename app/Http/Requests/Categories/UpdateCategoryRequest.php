@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Categories;
 
 use App\Data\Categories\UpdateCategoryData;
+use App\Models\Category;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateCategoryRequest extends FormRequest
@@ -23,9 +24,10 @@ class UpdateCategoryRequest extends FormRequest
         ];
     }
 
-    public function toData(): UpdateCategoryData
+    public function toData(Category $category): UpdateCategoryData
     {
         return new UpdateCategoryData(
+            category: $category,
             name: $this->has('name') ? $this->string('name')->toString() : null,
             color: $this->has('color')
                 ? ($this->filled('color') ? $this->string('color')->toString() : null)

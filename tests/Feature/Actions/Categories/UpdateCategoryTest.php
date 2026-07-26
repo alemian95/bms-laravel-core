@@ -1,9 +1,9 @@
 <?php
 
+use App\Actions\Categories\UpdateCategory;
 use App\Data\Categories\UpdateCategoryData;
 use App\Models\Category;
 use App\Models\User;
-use App\Services\Categories\CategoryUpdater;
 
 it('updates only color when name is not provided', function () {
     $user = User::factory()->create();
@@ -13,7 +13,7 @@ it('updates only color when name is not provided', function () {
         'color' => '#000000',
     ]);
 
-    app(CategoryUpdater::class)->update($category, new UpdateCategoryData(color: '#FFFFFF'));
+    app(UpdateCategory::class)->handle(new UpdateCategoryData(category: $category, color: '#FFFFFF'));
 
     $category->refresh();
     expect($category->name)->toBe('Original')
@@ -28,7 +28,7 @@ it('regenerates slug when name changes', function () {
         'slug' => 'original',
     ]);
 
-    app(CategoryUpdater::class)->update($category, new UpdateCategoryData(name: 'Renamed'));
+    app(UpdateCategory::class)->handle(new UpdateCategoryData(category: $category, name: 'Renamed'));
 
     $category->refresh();
     expect($category->name)->toBe('Renamed')
@@ -40,7 +40,7 @@ it('disambiguates slug when target name conflicts with sibling', function () {
     Category::factory()->for($user)->create(['name' => 'First', 'slug' => 'first']);
     $second = Category::factory()->for($user)->create(['name' => 'Second', 'slug' => 'second']);
 
-    app(CategoryUpdater::class)->update($second, new UpdateCategoryData(name: 'First'));
+    app(UpdateCategory::class)->handle(new UpdateCategoryData(category: $second, name: 'First'));
 
     $second->refresh();
     expect($second->slug)->toBe('first-2');

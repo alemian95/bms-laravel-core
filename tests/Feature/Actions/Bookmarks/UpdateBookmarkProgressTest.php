@@ -1,8 +1,9 @@
 <?php
 
+use App\Actions\Bookmarks\UpdateBookmarkProgress;
+use App\Data\Bookmarks\UpdateBookmarkProgressData;
 use App\Models\Bookmark;
 use App\Models\User;
-use App\Services\Bookmarks\BookmarkProgressUpdater;
 
 it('updates scroll_position and bumps reading_progress to max seen', function () {
     $user = User::factory()->create();
@@ -11,7 +12,7 @@ it('updates scroll_position and bumps reading_progress to max seen', function ()
         'reading_progress' => 30,
     ]);
 
-    app(BookmarkProgressUpdater::class)->update($bookmark, 50);
+    app(UpdateBookmarkProgress::class)->handle(new UpdateBookmarkProgressData($bookmark, 50));
 
     $bookmark->refresh();
     expect($bookmark->scroll_position)->toBe(50)
@@ -25,7 +26,7 @@ it('keeps reading_progress when new value is lower', function () {
         'reading_progress' => 80,
     ]);
 
-    app(BookmarkProgressUpdater::class)->update($bookmark, 40);
+    app(UpdateBookmarkProgress::class)->handle(new UpdateBookmarkProgressData($bookmark, 40));
 
     $bookmark->refresh();
     expect($bookmark->scroll_position)->toBe(40)

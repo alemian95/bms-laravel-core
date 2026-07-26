@@ -1,34 +1,41 @@
 <?php
 
-namespace App\Services\Bookmarks;
+namespace App\Actions\Bookmarks;
 
+use App\Actions\Action;
 use App\Data\Bookmarks\CreateBookmarkData;
 use App\Exceptions\Bookmarks\CategoryNotOwnedException;
 use App\Exceptions\Bookmarks\DuplicateBookmarkException;
 use App\Jobs\ExtractBookmarkMetadataJob;
 use App\Jobs\ParseArticleContentJob;
 use App\Models\Bookmark;
-use App\Models\User;
+use App\Services\Bookmarks\BookmarkUrlNormalizer;
 use Illuminate\Support\Facades\Bus;
 
-class BookmarkCreator
+/**
+ * @implements Action<CreateBookmarkData, Bookmark>
+ */
+final class CreateBookmark implements Action
 {
     public function __construct(
         private BookmarkUrlNormalizer $normalizer,
     ) {}
 
     /**
+     * @param  CreateBookmarkData  $input
+     *
      * @throws CategoryNotOwnedException
      * @throws DuplicateBookmarkException
      */
-    public function create(User $user, CreateBookmarkData $data): Bookmark
+    public function handle(mixed $input): Bookmark
     {
-        $url = $this->normalizer->normalize($data->url);
+        $user = $input->user;
+        $url = $this->normalizer->normalize($input->url);
 
-        if ($data->categoryId !== null) {
-            $owns = $user->categories()->whereKey($data->categoryId)->exists();
+        if ($input->categoryId !== null) {
+            $owns = $user->categories()->whereKey($input->categoryId)->exists();
             if (! $owns) {
-                throw new CategoryNotOwnedException($data->categoryId);
+                throw new CategoryNotOwnedException($input->categoryId);
             }
         }
 
@@ -38,7 +45,7 @@ class BookmarkCreator
 
         $bookmark = Bookmark::create([
             'user_id' => $user->id,
-            'category_id' => $data->categoryId,
+            'category_id' => $input->categoryId,
             'url' => $url,
             'status' => 'pending',
         ]);

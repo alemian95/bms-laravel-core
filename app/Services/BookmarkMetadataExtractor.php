@@ -15,7 +15,7 @@ class BookmarkMetadataExtractor
     {
         $info = $this->embed->get($url);
 
-        $host = $info->url?->getHost()
+        $host = $info->url->getHost()
             ?: (parse_url($url, PHP_URL_HOST) ?: null);
 
         return [

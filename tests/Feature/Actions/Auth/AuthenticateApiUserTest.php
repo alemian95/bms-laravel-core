@@ -1,9 +1,9 @@
 <?php
 
+use App\Actions\Auth\AuthenticateApiUser;
 use App\Data\Auth\LoginData;
 use App\Exceptions\Auth\InvalidApiCredentialsException;
 use App\Models\User;
-use App\Services\Auth\ApiAuthenticator;
 use Laravel\Sanctum\NewAccessToken;
 
 it('issues a token when credentials are valid', function () {
@@ -12,7 +12,7 @@ it('issues a token when credentials are valid', function () {
         'password' => 'secret-password-1',
     ]);
 
-    $token = app(ApiAuthenticator::class)->login(new LoginData(
+    $token = app(AuthenticateApiUser::class)->handle(new LoginData(
         email: 'jane@example.com',
         password: 'secret-password-1',
         deviceName: 'iPhone',
@@ -30,7 +30,7 @@ it('throws InvalidApiCredentialsException for wrong password', function () {
         'password' => 'correct-password',
     ]);
 
-    expect(fn () => app(ApiAuthenticator::class)->login(new LoginData(
+    expect(fn () => app(AuthenticateApiUser::class)->handle(new LoginData(
         email: 'jane@example.com',
         password: 'wrong-password',
         deviceName: 'iPhone',
@@ -38,7 +38,7 @@ it('throws InvalidApiCredentialsException for wrong password', function () {
 });
 
 it('throws InvalidApiCredentialsException for unknown email', function () {
-    expect(fn () => app(ApiAuthenticator::class)->login(new LoginData(
+    expect(fn () => app(AuthenticateApiUser::class)->handle(new LoginData(
         email: 'noone@example.com',
         password: 'whatever',
         deviceName: 'iPhone',

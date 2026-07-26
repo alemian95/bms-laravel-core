@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers\Settings;
 
+use App\Actions\Auth\IssueApiToken;
+use App\Actions\Auth\RevokeApiToken;
+use App\Data\Auth\RevokeTokenData;
 use App\Enums\TokenPreset;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Settings\StoreApiTokenRequest;
-use App\Services\Auth\ApiTokenIssuer;
-use App\Services\Auth\ApiTokenRevoker;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -28,9 +29,9 @@ class ApiTokenController extends Controller
         ]);
     }
 
-    public function store(StoreApiTokenRequest $request, ApiTokenIssuer $issuer)
+    public function store(StoreApiTokenRequest $request, IssueApiToken $action)
     {
-        $token = $issuer->issue($request->user(), $request->toData());
+        $token = $action->handle($request->toData());
 
         Inertia::flash('newToken', [
             'name' => $token->accessToken->name,
@@ -40,9 +41,9 @@ class ApiTokenController extends Controller
         return redirect()->route('api-tokens.index');
     }
 
-    public function destroy(Request $request, int $token, ApiTokenRevoker $revoker)
+    public function destroy(Request $request, int $token, RevokeApiToken $action)
     {
-        $revoker->revoke($request->user(), $token);
+        $action->handle(new RevokeTokenData($request->user(), $token));
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Token revoked.']);
 

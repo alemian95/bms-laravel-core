@@ -28,6 +28,7 @@ class StoreApiTokenRequest extends FormRequest
     public function toData(): IssueTokenData
     {
         return new IssueTokenData(
+            user: $this->user(),
             name: $this->string('name')->toString(),
             preset: TokenPreset::from($this->string('preset')->toString()),
         );

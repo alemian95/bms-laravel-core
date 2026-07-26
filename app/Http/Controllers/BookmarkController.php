@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\Bookmarks\CreateBookmark;
+use App\Actions\Bookmarks\DeleteBookmark;
+use App\Actions\Bookmarks\UpdateBookmarkProgress;
 use App\Exceptions\Bookmarks\CategoryNotOwnedException;
 use App\Exceptions\Bookmarks\DuplicateBookmarkException;
 use App\Http\Requests\Bookmarks\IndexBookmarksRequest;
@@ -9,10 +12,7 @@ use App\Http\Requests\Bookmarks\StoreBookmarkRequest;
 use App\Http\Requests\Bookmarks\UpdateBookmarkProgressRequest;
 use App\Models\Bookmark;
 use App\Models\Category;
-use App\Services\Bookmarks\BookmarkCreator;
 use App\Services\Bookmarks\BookmarkLister;
-use App\Services\Bookmarks\BookmarkProgressUpdater;
-use App\Services\Bookmarks\BookmarkRemover;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
@@ -33,10 +33,10 @@ class BookmarkController extends Controller
         ]);
     }
 
-    public function store(StoreBookmarkRequest $request, BookmarkCreator $creator)
+    public function store(StoreBookmarkRequest $request, CreateBookmark $action)
     {
         try {
-            $creator->create($request->user(), $request->toData());
+            $action->handle($request->toData());
         } catch (CategoryNotOwnedException) {
             Inertia::flash('toast', ['type' => 'error', 'message' => 'Invalid category']);
 
@@ -67,21 +67,21 @@ class BookmarkController extends Controller
     public function updateProgress(
         UpdateBookmarkProgressRequest $request,
         Bookmark $bookmark,
-        BookmarkProgressUpdater $updater,
+        UpdateBookmarkProgress $action,
     ) {
         Gate::authorize('update', $bookmark);
 
-        $updater->update($bookmark, $request->progress());
+        $action->handle($request->toData($bookmark));
 
         return response()->noContent();
     }
 
-    public function destroy(Request $request, Bookmark $bookmark, BookmarkRemover $remover)
+    public function destroy(Request $request, Bookmark $bookmark, DeleteBookmark $action)
     {
         Gate::authorize('delete', $bookmark);
 
         try {
-            $remover->delete($bookmark);
+            $action->handle($bookmark);
         } catch (\Exception $e) {
             Inertia::flash('toast', ['type' => 'error', 'message' => $e->getMessage()]);
 
