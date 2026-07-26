@@ -10,7 +10,9 @@ use App\Jobs\ExtractBookmarkMetadataJob;
 use App\Jobs\ParseArticleContentJob;
 use App\Models\Bookmark;
 use App\Services\Bookmarks\BookmarkUrlNormalizer;
+use BmsCore\Packages\Ai\AiFeatureServiceProvider;
 use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\Log;
 
 /**
  * @implements Action<CreateBookmarkData, Bookmark>
@@ -50,10 +52,18 @@ final class CreateBookmark implements Action
             'status' => 'pending',
         ]);
 
-        Bus::chain([
+        $chain = [
             new ExtractBookmarkMetadataJob($bookmark),
             new ParseArticleContentJob($bookmark),
-        ])->dispatch();
+        ];
+
+        if (app()->providerIsLoaded(AiFeatureServiceProvider::class))
+        {
+            // load the ai feature summary job
+            Log::info("AiFeatureServiceProvider is loaded");
+        }
+
+        Bus::chain($chain)->dispatch();
 
         return $bookmark;
     }
