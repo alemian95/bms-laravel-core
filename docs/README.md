@@ -4,8 +4,14 @@
 
 Funzionalità opzionali sotto `packages/`, attivabili e disattivabili dal solo `bootstrap/providers.php`.
 
-- [Plugin — documentazione generale](plugin/README.md) — cos'è un plugin, cosa può fare, come si attiva, regole di sviluppo.
-- [Plugin — documentazione tecnica](plugin/technical.md) — provider, rotte, eventi, slot frontend, pagine Inertia, [modifiche al core](plugin/technical.md#modifiche-al-core) e checklist per un nuovo plugin.
+- [Plugin — documentazione generale](plugin/README.md) — cos'è un plugin, cosa può fare, come si attiva e si configura, regole di sviluppo, [cosa serve al plugin `ai`](plugin/README.md#il-plugin-ai).
+- [Plugin — documentazione tecnica](plugin/technical.md) — provider, config e [dipendenze](plugin/technical.md#dipendenze-composer), rotte, eventi, slot frontend, pagine Inertia, [modifiche al core](plugin/technical.md#modifiche-al-core) e checklist per un nuovo plugin.
+
+## Specifiche
+
+Design validati prima dell'implementazione (`docs/superpowers/specs/`).
+
+- [AI summary generation](superpowers/specs/2026-07-27-ai-summary-generation-design.md) — installazione dell'AI SDK e generazione dei riassunti nel plugin `ai`.
 
 ## Piani di implementazione
 

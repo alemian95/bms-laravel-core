@@ -13,6 +13,7 @@ class AiFeatureServiceProvider extends PackageServiceProvider
     {
         // register package
         $package->name('ai')
+            ->hasConfigFile('ai-summary')
             ->discoversMigrations()
             ->runsMigrations()
             ->hasRoute('web');

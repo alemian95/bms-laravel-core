@@ -13,6 +13,7 @@ Riferimento di implementazione: il package `ai` (`packages/ai`). Per il quadro g
 
 ```
 packages/ai/
+├── config/ai-summary.php                    parametri di generazione, mergiato dal provider
 ├── database/migrations/2026_07_26_125358_create_ai_summaries_table.php
 ├── resources/js/
 │   ├── pages/summary.tsx                    pagina Inertia `ai::summary`
@@ -21,10 +22,48 @@ packages/ai/
 └── src/
     ├── AiFeatureServiceProvider.php         punto di ingresso
     ├── AiFeatureListenerRegistry.php        registrazione listener
+    ├── Actions/GenerateBookmarkSummary.php  generazione e persistenza del riassunto
     ├── Http/Controllers/SummaryController.php
     ├── Listeners/StartSummaryGeneration.php
     └── Models/AiSummary.php
 ```
+
+## Dipendenze Composer
+
+Le dipendenze di un plugin si dichiarano nel `composer.json` della root, come l'autoload
+PSR-4: `packages/ai` non è un package Composer a sé. Il plugin `ai` aggiunge `laravel/ai`.
+
+**Se i plugin diventano più d'uno**, rivalutare la scelta: un `composer.json` per package con
+`repositories: path` renderebbe le dipendenze di ciascun plugin esplicite e rimovibili per
+transitività. Il costo è il cambio del meccanismo di attivazione — con quello schema il
+provider non può più stare in `bootstrap/providers.php`, perché a package non installato
+quella riga punterebbe a una classe inesistente e il boot fallirebbe.
+
+## Configurazione
+
+Un plugin che ha bisogno di configurazione dichiara il proprio file con
+`->hasConfigFile('<nome>')`, che spatie risolve in `packages/<plugin>/config/<nome>.php` e
+merge nella config dell'applicazione. Il nome non deve collidere con i config esistenti:
+qui è `ai-summary` e non `ai`, che appartiene all'AI SDK.
+
+Il file è la fonte autorevole dei parametri di generazione — provider, modello, lunghezza,
+timeout e politica di retry del listener — letti sia dall'Action sia dal listener:
+
+```php
+// packages/ai/config/ai-summary.php
+'provider' => env('AI_SUMMARY_PROVIDER', Lab::OpenAICompatible->value),
+'model' => env('AI_SUMMARY_MODEL'),
+'sentences' => (int) env('AI_SUMMARY_SENTENCES', 4),
+```
+
+`env()` in questo file è legittimo quanto in `config/`: `mergeConfigFrom` non viene eseguito
+a config cachata. Larastan lo sa perché `phpstan.neon` dichiara `configDirectories` con il
+glob `packages/*/config`.
+
+Il provider e la chiave dell'endpoint restano nelle variabili dell'SDK
+(`OPENAI_COMPATIBLE_URL`, `OPENAI_COMPATIBLE_API_KEY`), quindi `config/ai.php` non va
+pubblicato: il config di default del package contiene già la voce `openai-compatible`.
+Da container Sail l'URL punta a `host.docker.internal`, non a `localhost`.
 
 ## Il service provider
 
@@ -60,6 +99,16 @@ Event::listen(ContentParsedEvent::class, StartSummaryGeneration::class);
 ```
 
 `registerListeners()` è chiamato dal provider: se il provider non è registrato, nessun listener è agganciato e l'evento del core passa a vuoto. La registrazione sta in una classe dedicata (non nel provider) così il set di listener resta leggibile e testabile.
+
+Il listener implementa `ShouldQueue` e resta un adapter puro verso l'Action: nessuna logica
+di dominio, solo `tries()` e `backoff()` letti dal config. La coda non è un dettaglio — in
+esecuzione sincrona il listener condividerebbe i retry di `ParseArticleContentJob`, e una
+chiamata AI fallita farebbe ri-scaricare e ri-parsare l'articolo tre volte.
+
+Un plugin non deve mai far fallire l'operazione del core che ha emesso l'evento. Per questo
+`GenerateBookmarkSummary` tratta le condizioni non recuperabili — contenuto assente,
+modello non configurato — come uscite pulite (`null` più un warning nel log), non come
+eccezioni da ritentare.
 
 ## Rotte
 
@@ -157,6 +206,12 @@ In `tests/Feature/Packages/<Nome>/`, con Pest:
 
 - `AiPluginSlotTest.php` — verifica che la prop `plugins.ai` sia condivisa (se salta, il pulsante sparisce dall'interfaccia).
 - `SummaryControllerTest.php` — pagina con summary, pagina senza summary, `403` sul bookmark di un altro utente.
+- `GenerateBookmarkSummaryTest.php` — generazione e persistenza, contenuto assente, modello non configurato, rigenerazione senza duplicati, listener messo in coda dall'evento del core.
+
+Le chiamate all'AI si fingono per agent, non globalmente: `Str::summarize()` usa
+`Laravel\Ai\Agents\SummarizeAgent`, quindi `SummarizeAgent::fake([...])` e
+`SummarizeAgent::assertPrompted(...)`. In test la coda è sincrona: il listener gira davvero,
+ed è il motivo per cui una configurazione mancante deve restare un'uscita pulita.
 
 ```bash
 ./vendor/bin/sail artisan test --compact tests/Feature/Packages

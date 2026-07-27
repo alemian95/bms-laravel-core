@@ -3,21 +3,36 @@
 namespace BmsCore\Packages\Ai\Listeners;
 
 use App\Events\Bookmarks\ContentParsedEvent;
-use Illuminate\Support\Facades\Log;
+use BmsCore\Packages\Ai\Actions\GenerateBookmarkSummary;
+use Illuminate\Contracts\Queue\ShouldQueue;
 
-class StartSummaryGeneration
+/**
+ * Adapter fra l'evento del core e l'operazione di generazione.
+ *
+ * Va in coda per non condividere i retry di ParseArticleContentJob: una
+ * chiamata AI fallita non deve far ri-scaricare e ri-parsare l'articolo.
+ */
+class StartSummaryGeneration implements ShouldQueue
 {
-    /**
-     * Create the event listener.
-     */
-    public function __construct()
-    {}
+    public function __construct(
+        private GenerateBookmarkSummary $generateSummary,
+    ) {}
 
-    /**
-     * Handle the event.
-     */
     public function handle(ContentParsedEvent $event): void
     {
-        Log::info('Start summary generation for bookmark: ' . $event->bookmark->id);
+        $this->generateSummary->handle($event->bookmark);
+    }
+
+    public function tries(): int
+    {
+        return (int) config('ai-summary.tries');
+    }
+
+    /**
+     * @return array<int, int>
+     */
+    public function backoff(): array
+    {
+        return (array) config('ai-summary.backoff');
     }
 }
