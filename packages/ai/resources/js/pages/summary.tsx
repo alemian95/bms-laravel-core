@@ -1,6 +1,6 @@
 import { Form, Head, Link, usePoll } from '@inertiajs/react';
 import { ArrowLeftIcon, LoaderCircleIcon, SparklesIcon } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import ai from '@/routes/ai';
@@ -31,25 +31,29 @@ export default function AiSummary({
     summary: string | null;
 }) {
     const [generating, setGenerating] = useState(false);
-    const { start, stop } = usePoll(
+
+    const poll = usePoll(
         POLL_INTERVAL,
-        { only: ['summary'] },
+        () => ({
+            only: ['summary'],
+            onSuccess: (page) => {
+                if ((page.props.summary as string | null) !== summary) {
+                    stopWaiting();
+                }
+            },
+        }),
         { autoStart: false },
     );
 
-    useEffect(() => {
+    function stopWaiting() {
         setGenerating(false);
-        stop();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [summary]);
+        poll.stop();
+    }
 
     const onGenerationStarted = () => {
         setGenerating(true);
-        start();
-        setTimeout(() => {
-            setGenerating(false);
-            stop();
-        }, POLL_TIMEOUT);
+        poll.start();
+        setTimeout(stopWaiting, POLL_TIMEOUT);
     };
 
     return (
@@ -107,7 +111,9 @@ export default function AiSummary({
                     className={`flex items-center gap-2 rounded-lg border border-dashed p-6 text-sm text-muted-foreground`}
                 >
                     <SparklesIcon className={`size-4`} />
-                    {generating ? 'Generating the summary...' : 'No summary yet.'}
+                    {generating
+                        ? 'Generating the summary...'
+                        : 'No summary yet.'}
                 </div>
             )}
         </div>

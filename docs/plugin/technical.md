@@ -24,7 +24,7 @@ packages/ai/
     ├── AiFeatureListenerRegistry.php        registrazione listener
     ├── Actions/GenerateBookmarkSummary.php  generazione e persistenza del riassunto
     ├── Http/Controllers/SummaryController.php
-    ├── Listeners/StartSummaryGeneration.php
+    ├── Jobs/GenerateBookmarkSummaryJob.php   generazione in coda (evento core + avvio manuale)
     └── Models/AiSummary.php
 ```
 
@@ -95,14 +95,18 @@ Il core emette eventi di dominio; il plugin li ascolta senza toccare chi li emet
 
 ```php
 // packages/ai/src/AiFeatureListenerRegistry.php
-Event::listen(ContentParsedEvent::class, StartSummaryGeneration::class);
+Event::listen(
+    ContentParsedEvent::class,
+    fn (ContentParsedEvent $event) => GenerateBookmarkSummaryJob::dispatch($event->bookmark),
+);
 ```
 
 `registerListeners()` è chiamato dal provider: se il provider non è registrato, nessun listener è agganciato e l'evento del core passa a vuoto. La registrazione sta in una classe dedicata (non nel provider) così il set di listener resta leggibile e testabile.
 
-Il listener implementa `ShouldQueue` e resta un adapter puro verso l'Action: nessuna logica
-di dominio, solo `tries()` e `backoff()` letti dal config. La coda non è un dettaglio — in
-esecuzione sincrona il listener condividerebbe i retry di `ParseArticleContentJob`, e una
+`GenerateBookmarkSummaryJob` è l'unico punto d'ingresso in coda della generazione: ci
+arrivano sia l'evento del core sia l'avvio manuale dal `SummaryController`, così `tries()` e
+`backoff()` (letti dal config) restano in un posto solo. La coda non è un dettaglio — in
+esecuzione sincrona la generazione condividerebbe i retry di `ParseArticleContentJob`, e una
 chiamata AI fallita farebbe ri-scaricare e ri-parsare l'articolo tre volte.
 
 Un plugin non deve mai far fallire l'operazione del core che ha emesso l'evento. Per questo
