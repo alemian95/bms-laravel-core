@@ -2,6 +2,7 @@
 
 namespace BmsCore\Packages\Ai;
 
+use Inertia\Inertia;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 
@@ -17,5 +18,13 @@ class AiFeatureServiceProvider extends PackageServiceProvider
 
         // register event listeners
         app(AiFeatureListenerRegistry::class)->registerListeners();
+    }
+
+    /**
+     * Flags the package as available to the frontend plugin slots.
+     */
+    public function packageBooted(): void
+    {
+        Inertia::share('plugins.ai', true);
     }
 }
