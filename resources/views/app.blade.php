@@ -49,7 +49,14 @@
 
         <link rel="stylesheet" href="/theme.css">
 
-        @vite(['resources/js/app.tsx', "resources/js/pages/{$page['component']}.tsx"])
+        {{-- `ai::summary` lives in packages/ai, `bookmarks/read` in the app --}}
+        @php
+            $pageEntry = str_contains($page['component'], '::')
+                ? 'packages/'.str_replace('::', '/resources/js/pages/', $page['component']).'.tsx'
+                : "resources/js/pages/{$page['component']}.tsx";
+        @endphp
+
+        @vite(['resources/js/app.tsx', $pageEntry])
         <x-inertia::head>
             <title>{{ config('app.name', 'Laravel') }}</title>
         </x-inertia::head>

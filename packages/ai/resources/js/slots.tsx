@@ -1,5 +1,7 @@
+import { Link } from '@inertiajs/react';
 import { SparklesIcon } from 'lucide-react';
 
+import ai from '@/routes/ai';
 import type { Bookmark } from '@/types';
 
 function SummaryButton({ bookmark }: { bookmark: Bookmark }) {
@@ -7,14 +9,13 @@ function SummaryButton({ bookmark }: { bookmark: Bookmark }) {
         return null;
     }
 
-    // ponytail: nessuna azione finché non esiste la pagina/dialog del summary
     return (
-        <button
-            type={`button`}
-            className={`inline-flex cursor-pointer items-center gap-1 text-xs text-muted-foreground hover:text-foreground`}
+        <Link
+            href={ai.summary(bookmark.id).url}
+            className={`inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground`}
         >
             <SparklesIcon className={`size-3`} /> Summary
-        </button>
+        </Link>
     );
 }
 

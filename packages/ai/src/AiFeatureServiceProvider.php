@@ -14,7 +14,8 @@ class AiFeatureServiceProvider extends PackageServiceProvider
         // register package
         $package->name('ai')
             ->discoversMigrations()
-            ->runsMigrations();
+            ->runsMigrations()
+            ->hasRoute('web');
 
         // register event listeners
         app(AiFeatureListenerRegistry::class)->registerListeners();
