@@ -3,9 +3,8 @@
 use App\Events\Bookmarks\ContentParsedEvent;
 use App\Models\Bookmark;
 use BmsCore\Packages\Ai\Actions\GenerateBookmarkSummary;
-use BmsCore\Packages\Ai\Listeners\StartSummaryGeneration;
+use BmsCore\Packages\Ai\Jobs\GenerateBookmarkSummaryJob;
 use BmsCore\Packages\Ai\Models\AiSummary;
-use Illuminate\Events\CallQueuedListener;
 use Illuminate\Support\Facades\Queue;
 use Laravel\Ai\Agents\SummarizeAgent;
 
@@ -71,10 +70,25 @@ it('replaces the existing summary instead of duplicating it', function () {
 it('queues the generation when the core parses a bookmark', function () {
     Queue::fake();
 
-    ContentParsedEvent::dispatch(Bookmark::factory()->create());
+    $bookmark = Bookmark::factory()->create();
+
+    ContentParsedEvent::dispatch($bookmark);
 
     Queue::assertPushed(
-        CallQueuedListener::class,
-        fn (CallQueuedListener $job) => $job->class === StartSummaryGeneration::class,
+        GenerateBookmarkSummaryJob::class,
+        fn (GenerateBookmarkSummaryJob $job) => $job->bookmark->is($bookmark),
     );
+});
+
+it('generates the summary when the queued job runs', function () {
+    SummarizeAgent::fake(['Un riassunto generato dal modello.']);
+
+    $bookmark = Bookmark::factory()->create(['content_text' => 'Il testo integrale dell articolo.']);
+
+    (new GenerateBookmarkSummaryJob($bookmark))->handle(app(GenerateBookmarkSummary::class));
+
+    $this->assertDatabaseHas('ai_summaries', [
+        'bookmark_id' => $bookmark->id,
+        'summary' => 'Un riassunto generato dal modello.',
+    ]);
 });
