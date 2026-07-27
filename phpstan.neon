@@ -4,5 +4,12 @@ includes:
 parameters:
     paths:
         - app
+        - packages
+
+    # I plugin hanno il proprio file di config: env() lì dentro è legittimo
+    # quanto in config/, perché mergeConfigFrom non gira a config cachata.
+    configDirectories:
+        - config
+        - packages/*/config
 
     level: 5

@@ -6,6 +6,7 @@ import {
     Trash2Icon,
 } from 'lucide-react';
 
+import { PluginSlot } from '@/components/plugin-slot';
 import bookmarks from '@/routes/bookmarks';
 import type { Bookmark } from '@/types';
 
@@ -152,6 +153,10 @@ export function BookmarkCard({
                         >
                             Open <ExternalLinkIcon className={`size-3`} />
                         </a>
+                        <PluginSlot
+                            name={`bookmark-card-actions`}
+                            bookmark={bookmark}
+                        />
                     </div>
                     <button
                         onClick={handleDelete}

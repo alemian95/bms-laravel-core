@@ -50,10 +50,12 @@ final class CreateBookmark implements Action
             'status' => 'pending',
         ]);
 
-        Bus::chain([
+        $chain = [
             new ExtractBookmarkMetadataJob($bookmark),
             new ParseArticleContentJob($bookmark),
-        ])->dispatch();
+        ];
+
+        Bus::chain($chain)->dispatch();
 
         return $bookmark;
     }

@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Events\Bookmarks\ContentParsedEvent;
 use App\Models\Bookmark;
 use App\Services\ArticleContentParser;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -21,7 +22,7 @@ class ParseArticleContentJob implements ShouldQueue
     public function handle(ArticleContentParser $parser): void
     {
         $content = $parser->parse($this->bookmark->url);
-
         $this->bookmark->update($content);
+        ContentParsedEvent::dispatch($this->bookmark);
     }
 }

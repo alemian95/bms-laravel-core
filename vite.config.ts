@@ -6,6 +6,16 @@ import laravel from 'laravel-vite-plugin';
 import { defineConfig } from 'vite';
 
 export default defineConfig({
+    /**
+     * Recharts pulls its own copy of React through Vite's dependency
+     * pre-bundling, which breaks hooks with "Invalid hook call".
+     */
+    resolve: {
+        dedupe: ['react', 'react-dom'],
+    },
+    optimizeDeps: {
+        include: ['react', 'react-dom', 'recharts'],
+    },
     plugins: [
         laravel({
             input: ['resources/css/app.css', 'resources/js/app.tsx'],
