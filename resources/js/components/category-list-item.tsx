@@ -1,14 +1,11 @@
 import { router } from '@inertiajs/react';
-import {
-    CheckIcon,
-    PaintBucketIcon,
-    TextCursorInputIcon,
-    Trash2Icon,
-    XIcon,
-} from 'lucide-react';
+import { CheckIcon, PencilIcon, Trash2Icon, XIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { useDebounce } from '@/hooks/use-debounce';
 import categories from '@/routes/categories';
 import type { Category } from '@/types';
 
@@ -17,6 +14,7 @@ export function CategoryListItem({ category }: { category: Category }) {
     const [newName, setNewName] = useState(category.name);
     const [color, setColor] = useState(category.color ?? '#000000');
     const [prevCategoryColor, setPrevCategoryColor] = useState(category.color);
+    const debouncedColor = useDebounce(color, 500);
 
     if (category.color !== prevCategoryColor) {
         setPrevCategoryColor(category.color);
@@ -24,27 +22,25 @@ export function CategoryListItem({ category }: { category: Category }) {
     }
 
     useEffect(() => {
-        if (color === (category.color ?? '#000000')) {
+        if (debouncedColor === (category.color ?? '#000000')) {
             return;
         }
 
-        const timeout = setTimeout(() => {
-            router.put(
-                categories.update(category.id),
-                { color },
-                {
-                    preserveScroll: true,
-                },
-            );
-        }, 500);
+        router.put(
+            categories.update(category.id),
+            { color: debouncedColor },
+            { preserveScroll: true },
+        );
+    }, [debouncedColor, category.id, category.color]);
 
-        return () => clearTimeout(timeout);
-    }, [color, category.id, category.color]);
+    const cancelEditing = () => {
+        setIsEditingName(false);
+        setNewName(category.name);
+    };
 
     const updateName = () => {
         if (newName.trim() === '' || newName === category.name) {
-            setIsEditingName(false);
-            setNewName(category.name);
+            cancelEditing();
 
             return;
         }
@@ -53,21 +49,52 @@ export function CategoryListItem({ category }: { category: Category }) {
             categories.update(category.id),
             { name: newName },
             {
+                preserveScroll: true,
                 onSuccess: () => setIsEditingName(false),
             },
         );
     };
 
+    const count = category.bookmarks_count ?? 0;
+
+    const deleteCategory = () => {
+        const warning = count
+            ? `\n${count} bookmark${count === 1 ? '' : 's'} will be left without a category.`
+            : '';
+
+        if (confirm(`Delete "${category.name}"?${warning}`)) {
+            router.delete(categories.destroy(category.id), {
+                preserveScroll: true,
+            });
+        }
+    };
+
     return (
         <li
-            className={`flex items-center justify-between rounded border px-4 py-2 shadow-sm`}
-            key={category.id}
+            className={`group flex items-center gap-3 px-3 py-2.5 transition-colors hover:bg-muted/40`}
         >
-            <div className={`flex flex-1 items-center gap-2`}>
+            <label
+                className={`relative shrink-0 cursor-pointer`}
+                title={`Change color`}
+            >
+                <span
+                    className={`block size-5 rounded-full ring-1 ring-border ring-offset-2 ring-offset-background`}
+                    style={{ backgroundColor: color }}
+                />
+                <input
+                    type={`color`}
+                    value={color}
+                    onChange={(e) => setColor(e.target.value)}
+                    aria-label={`Color of ${category.name}`}
+                    className={`absolute inset-0 size-full cursor-pointer opacity-0`}
+                />
+            </label>
+
+            <div className={`min-w-0 flex-1`}>
                 {isEditingName ? (
-                    <div className={`flex flex-1 items-center gap-2`}>
+                    <div className={`flex items-center gap-1`}>
                         <Input
-                            className={`w-fit py-0`}
+                            className={`h-8 max-w-xs`}
                             value={newName}
                             onChange={(e) => setNewName(e.target.value)}
                             onKeyDown={(e) => {
@@ -76,79 +103,64 @@ export function CategoryListItem({ category }: { category: Category }) {
                                 }
 
                                 if (e.key === 'Escape') {
-                                    setIsEditingName(false);
-                                    setNewName(category.name);
+                                    cancelEditing();
                                 }
                             }}
                             autoFocus
                         />
-                        <button onClick={updateName}>
-                            <CheckIcon className={`size-4 text-green-600`} />
-                        </button>
-                        <button
-                            onClick={() => {
-                                setIsEditingName(false);
-                                setNewName(category.name);
-                            }}
+                        <Button
+                            variant={`ghost`}
+                            size={`icon`}
+                            className={`size-8 text-green-600`}
+                            onClick={updateName}
+                            aria-label={`Save name`}
                         >
-                            <XIcon className={`size-4 text-destructive`} />
-                        </button>
+                            <CheckIcon className={`size-4`} />
+                        </Button>
+                        <Button
+                            variant={`ghost`}
+                            size={`icon`}
+                            className={`size-8`}
+                            onClick={cancelEditing}
+                            aria-label={`Cancel renaming`}
+                        >
+                            <XIcon className={`size-4`} />
+                        </Button>
                     </div>
                 ) : (
-                    <div
-                        className={`grid grid-cols-[32px_1fr_1fr] grid-rows-2`}
+                    <button
+                        type={`button`}
+                        onClick={() => setIsEditingName(true)}
+                        title={`Rename`}
+                        className={`flex max-w-full min-w-0 items-center gap-2 text-left`}
                     >
-                        <div
-                            className={`row-span-2 flex items-center justify-start`}
-                        >
-                            <div
-                                className={`size-4 rounded-full`}
-                                style={{ backgroundColor: color }}
-                            />
-                        </div>
-                        <span className={`col-span-2 font-bold`}>
+                        <span className={`truncate font-medium`}>
                             {category.name}
-                        </span>{' '}
-                        <span className={`text-sm text-gray-600`}>
-                            code: {category.slug}
                         </span>
-                    </div>
-                )}
-            </div>
-            <div className={`flex items-center gap-2`}>
-                <div className={`mr-6`}>
-                    <b>{category.bookmarks_count}</b> bookmarks
-                </div>
-                {!isEditingName && (
-                    <button onClick={() => setIsEditingName(true)}>
-                        <TextCursorInputIcon className={`size-5`} />
+                        <PencilIcon
+                            className={`size-3.5 shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100`}
+                        />
                     </button>
                 )}
-                <div className={`relative flex items-center`}>
-                    <PaintBucketIcon
-                        className={`pointer-events-none absolute left-0 size-5`}
-                    />
-                    <input
-                        type="color"
-                        className={`size-5 cursor-pointer opacity-0`}
-                        value={color}
-                        onChange={(e) => setColor(e.target.value)}
-                    />
-                </div>
-                <button
-                    onClick={() => {
-                        if (
-                            confirm(
-                                'Are you sure you want to delete this category?',
-                            )
-                        ) {
-                            router.delete(categories.destroy(category.id));
-                        }
-                    }}
+                <p
+                    className={`truncate font-mono text-xs text-muted-foreground`}
                 >
-                    <Trash2Icon className={`size-5 text-destructive`} />
-                </button>
+                    {category.slug}
+                </p>
             </div>
+
+            <Badge variant={`secondary`} className={`shrink-0 tabular-nums`}>
+                {count} bookmark{count === 1 ? '' : 's'}
+            </Badge>
+            <Button
+                variant={`ghost`}
+                size={`icon`}
+                className={`size-8 text-muted-foreground hover:text-destructive`}
+                onClick={deleteCategory}
+                aria-label={`Delete ${category.name}`}
+            >
+                <Trash2Icon className={`size-4`} />
+            </Button>
         </li>
     );
 }

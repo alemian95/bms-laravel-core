@@ -1,31 +1,89 @@
 import { Form, Head } from '@inertiajs/react';
+import { PlusIcon } from 'lucide-react';
 import { CategoryListItem } from '@/components/category-list-item';
+import Heading from '@/components/heading';
+import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import categories from '@/routes/categories';
 import type { Category } from '@/types';
 
 const createUrl = categories.store();
 
-export default function Categories({ categories }: { categories: Category[] }) {
+export default function Categories({
+    categories: items,
+}: {
+    categories: Category[];
+}) {
     return (
         <>
             <Head title="Categories" />
 
-            <Form action={createUrl} method={`post`} className={`flex gap-2`}>
-                <Input
-                    type={`text`}
-                    name={`name`}
-                    placeholder={`Create new category`}
+            <div className={`mx-auto w-full max-w-3xl space-y-6`}>
+                <Heading
+                    title={`Categories`}
+                    description={`Rename a category by clicking its name, or click the dot to change its color.`}
                 />
-                <Input className={`w-12 p-0`} type={`color`} name={`color`} />
-                <Button type={`submit`}>Create</Button>
-            </Form>
-            <ul className={`mt-4 flex flex-col gap-3`}>
-                {categories.map((category) => (
-                    <CategoryListItem category={category} key={category.id} />
-                ))}
-            </ul>
+
+                <Form
+                    action={createUrl}
+                    method={`post`}
+                    options={{ preserveScroll: true }}
+                    resetOnSuccess
+                    className={`rounded-lg border p-4`}
+                >
+                    {({ processing, errors }) => (
+                        <div className={`flex flex-wrap items-end gap-3`}>
+                            <div className={`min-w-48 flex-1 space-y-2`}>
+                                <Label htmlFor={`name`}>Name</Label>
+                                <Input
+                                    id={`name`}
+                                    type={`text`}
+                                    name={`name`}
+                                    required
+                                    placeholder={`e.g. Frontend`}
+                                />
+                            </div>
+                            <div className={`space-y-2`}>
+                                <Label htmlFor={`color`}>Color</Label>
+                                <Input
+                                    id={`color`}
+                                    className={`h-9 w-14 cursor-pointer p-1`}
+                                    type={`color`}
+                                    name={`color`}
+                                    defaultValue={`#6366f1`}
+                                />
+                            </div>
+                            <Button type={`submit`} disabled={processing}>
+                                <PlusIcon className={`size-4`} />
+                                Create
+                            </Button>
+                            <div className={`w-full`}>
+                                <InputError message={errors.name} />
+                                <InputError message={errors.color} />
+                            </div>
+                        </div>
+                    )}
+                </Form>
+
+                {items.length === 0 ? (
+                    <div
+                        className={`rounded-lg border border-dashed p-10 text-center text-sm text-muted-foreground`}
+                    >
+                        No categories yet. Create your first one above.
+                    </div>
+                ) : (
+                    <ul className={`divide-y rounded-lg border`}>
+                        {items.map((category) => (
+                            <CategoryListItem
+                                category={category}
+                                key={category.id}
+                            />
+                        ))}
+                    </ul>
+                )}
+            </div>
         </>
     );
 }
