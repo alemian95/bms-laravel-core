@@ -1,12 +1,19 @@
 <?php
 
+use App\Events\Bookmarks\ContentParsedEvent;
 use App\Jobs\ParseArticleContentJob;
 use App\Models\Bookmark;
 use App\Models\User;
 use App\Services\ArticleContentParser;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Event;
 
 uses(RefreshDatabase::class);
+
+// Senza fake il listener del package ai gira inline (queue `sync` nei test) e
+// chiama davvero il modello. Qui il contratto del core è l'evento; che il
+// package ne accodi il job è coperto dai suoi test.
+beforeEach(fn () => Event::fake([ContentParsedEvent::class]));
 
 test('parses article content and stores clean html plus plain text', function () {
     $user = User::factory()->create();
@@ -31,6 +38,11 @@ test('parses article content and stores clean html plus plain text', function ()
         'id' => $bookmark->id,
         'content_html' => '<p>Hello world</p>',
     ]);
+
+    Event::assertDispatched(
+        ContentParsedEvent::class,
+        fn (ContentParsedEvent $event) => $event->bookmark->is($bookmark),
+    );
 });
 
 test('stores nulls when parser returns nulls and does not touch status', function () {
