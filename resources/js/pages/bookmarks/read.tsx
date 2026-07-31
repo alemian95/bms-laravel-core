@@ -7,6 +7,7 @@ import { useScrollPercentage } from '@/hooks/use-scroll-percentage';
 import bookmarks from '@/routes/bookmarks';
 import type { Bookmark } from '@/types';
 import { BookmarkHeader } from '@/components/bookmark-header';
+import { PluginSlot } from '@/components/plugin-slot';
 
 export default function BookmarkRead({ bookmark }: { bookmark: Bookmark }) {
     const isPending = bookmark.status === 'pending';
@@ -90,8 +91,12 @@ export default function BookmarkRead({ bookmark }: { bookmark: Bookmark }) {
             <Head title={bookmark.title ?? 'Reader'} />
 
             <div className={`mx-auto max-w-3xl px-4 py-6`}>
-
                 <BookmarkHeader bookmark={bookmark} isPending={isPending} />
+
+                <PluginSlot
+                    name={`bookmark-read-before-content`}
+                    bookmark={bookmark}
+                />
 
                 {hasContent ? (
                     <article

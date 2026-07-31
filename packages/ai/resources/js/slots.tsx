@@ -1,8 +1,14 @@
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import { SparklesIcon } from 'lucide-react';
 
 import { lazy, Suspense } from 'react';
 
+import {
+    Accordion,
+    AccordionContent,
+    AccordionItem,
+    AccordionTrigger,
+} from '@/components/ui/accordion';
 import { Skeleton } from '@/components/ui/skeleton';
 import ai from '@/routes/ai';
 import type { Bookmark } from '@/types';
@@ -38,7 +44,37 @@ function SummaryButton({ bookmark }: { bookmark: Bookmark }) {
     );
 }
 
+function TldrAccordion() {
+    const summary = usePage().props.aiSummary as string | null | undefined;
+
+    if (!summary) {
+        return null;
+    }
+
+    return (
+        <Accordion
+            type={`single`}
+            collapsible
+            className={`mb-8 rounded-lg border px-4`}
+        >
+            <AccordionItem value={`tldr`}>
+                <AccordionTrigger className={`text-sm font-medium`}>
+                    <span className={`flex items-center gap-2`}>
+                        <SparklesIcon className={`size-4`} /> TLDR
+                    </span>
+                </AccordionTrigger>
+                <AccordionContent
+                    className={`text-sm whitespace-pre-line text-muted-foreground`}
+                >
+                    {summary}
+                </AccordionContent>
+            </AccordionItem>
+        </Accordion>
+    );
+}
+
 export default {
     'bookmark-card-actions': SummaryButton,
+    'bookmark-read-before-content': TldrAccordion,
     'dashboard-widgets': AiDashboardWidgetSlot,
 };
