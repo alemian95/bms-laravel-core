@@ -2,7 +2,6 @@
 
 namespace App\Actions\Bookmarks;
 
-use App\Actions\Action;
 use App\Data\Bookmarks\CreateBookmarkData;
 use App\Exceptions\Bookmarks\CategoryNotOwnedException;
 use App\Exceptions\Bookmarks\DuplicateBookmarkException;
@@ -12,22 +11,17 @@ use App\Models\Bookmark;
 use App\Services\Bookmarks\BookmarkUrlNormalizer;
 use Illuminate\Support\Facades\Bus;
 
-/**
- * @implements Action<CreateBookmarkData, Bookmark>
- */
-final class CreateBookmark implements Action
+final class CreateBookmark
 {
     public function __construct(
         private BookmarkUrlNormalizer $normalizer,
     ) {}
 
     /**
-     * @param  CreateBookmarkData  $input
-     *
      * @throws CategoryNotOwnedException
      * @throws DuplicateBookmarkException
      */
-    public function handle(mixed $input): Bookmark
+    public function handle(CreateBookmarkData $input): Bookmark
     {
         $user = $input->user;
         $url = $this->normalizer->normalize($input->url);

@@ -2,18 +2,11 @@
 
 namespace App\Actions\Settings;
 
-use App\Actions\Action;
 use App\Models\User;
 
-/**
- * @implements Action<User, void>
- */
-final class DeleteAccount implements Action
+final class DeleteAccount
 {
-    /**
-     * @param  User  $input
-     */
-    public function handle(mixed $input): void
+    public function handle(User $input): void
     {
         $input->delete();
     }

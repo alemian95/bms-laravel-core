@@ -2,18 +2,11 @@
 
 namespace App\Actions\Bookmarks;
 
-use App\Actions\Action;
 use App\Models\Bookmark;
 
-/**
- * @implements Action<Bookmark, void>
- */
-final class DeleteBookmark implements Action
+final class DeleteBookmark
 {
-    /**
-     * @param  Bookmark  $input
-     */
-    public function handle(mixed $input): void
+    public function handle(Bookmark $input): void
     {
         $input->delete();
     }

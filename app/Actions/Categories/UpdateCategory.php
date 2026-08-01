@@ -2,24 +2,17 @@
 
 namespace App\Actions\Categories;
 
-use App\Actions\Action;
 use App\Data\Categories\UpdateCategoryData;
 use App\Models\Category;
 use App\Services\Categories\CategorySlugGenerator;
 
-/**
- * @implements Action<UpdateCategoryData, Category>
- */
-final class UpdateCategory implements Action
+final class UpdateCategory
 {
     public function __construct(
         private CategorySlugGenerator $slugger,
     ) {}
 
-    /**
-     * @param  UpdateCategoryData  $input
-     */
-    public function handle(mixed $input): Category
+    public function handle(UpdateCategoryData $input): Category
     {
         $category = $input->category;
         $attributes = [];

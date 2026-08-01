@@ -2,24 +2,17 @@
 
 namespace App\Actions\Categories;
 
-use App\Actions\Action;
 use App\Data\Categories\CreateCategoryData;
 use App\Models\Category;
 use App\Services\Categories\CategorySlugGenerator;
 
-/**
- * @implements Action<CreateCategoryData, Category>
- */
-final class CreateCategory implements Action
+final class CreateCategory
 {
     public function __construct(
         private CategorySlugGenerator $slugger,
     ) {}
 
-    /**
-     * @param  CreateCategoryData  $input
-     */
-    public function handle(mixed $input): Category
+    public function handle(CreateCategoryData $input): Category
     {
         $user = $input->user;
 

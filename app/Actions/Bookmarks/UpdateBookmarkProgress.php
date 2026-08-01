@@ -2,18 +2,11 @@
 
 namespace App\Actions\Bookmarks;
 
-use App\Actions\Action;
 use App\Data\Bookmarks\UpdateBookmarkProgressData;
 
-/**
- * @implements Action<UpdateBookmarkProgressData, void>
- */
-final class UpdateBookmarkProgress implements Action
+final class UpdateBookmarkProgress
 {
-    /**
-     * @param  UpdateBookmarkProgressData  $input
-     */
-    public function handle(mixed $input): void
+    public function handle(UpdateBookmarkProgressData $input): void
     {
         $input->bookmark->update([
             'scroll_position' => $input->progress,

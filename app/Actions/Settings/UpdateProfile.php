@@ -2,18 +2,11 @@
 
 namespace App\Actions\Settings;
 
-use App\Actions\Action;
 use App\Data\Settings\UpdateProfileData;
 
-/**
- * @implements Action<UpdateProfileData, void>
- */
-final class UpdateProfile implements Action
+final class UpdateProfile
 {
-    /**
-     * @param  UpdateProfileData  $input
-     */
-    public function handle(mixed $input): void
+    public function handle(UpdateProfileData $input): void
     {
         $user = $input->user;
 
