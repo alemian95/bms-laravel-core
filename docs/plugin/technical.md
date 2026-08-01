@@ -13,9 +13,14 @@ Riferimento di implementazione: il package `ai` (`packages/ai`). Per il quadro g
 
 ```
 packages/ai/
-├── config/ai-summary.php                    parametri di generazione, mergiato dal provider
+├── config/
+│   ├── ai-summary.php                       parametri di generazione, mergiato dal provider
+│   └── ai-chat.php                          parametri della chat sul singolo bookmark
 ├── database/migrations/2026_07_26_125358_create_ai_summaries_table.php
+├── database/migrations/2026_08_01_120000_create_ai_chat_messages_table.php
 ├── resources/js/
+│   ├── components/bookmark-chat.tsx         pannello di chat, caricato lazy dallo slot
+│   ├── hooks/use-bookmark-chat.ts           storico + lettura dello stream SSE
 │   ├── pages/summary.tsx                    pagina Inertia `ai::summary`
 │   └── slots.tsx                            componenti da iniettare negli slot del core
 ├── routes/web.php                           rotte del plugin
@@ -23,9 +28,12 @@ packages/ai/
     ├── AiFeatureServiceProvider.php         punto di ingresso
     ├── AiFeatureListenerRegistry.php        registrazione listener
     ├── Actions/GenerateBookmarkSummary.php  generazione e persistenza del riassunto
+    ├── Agents/BookmarkChatAgent.php         agent conversazionale sul testo di un bookmark
     ├── Http/Controllers/SummaryController.php
+    ├── Http/Controllers/ChatController.php
     ├── Jobs/GenerateBookmarkSummaryJob.php   generazione in coda (evento core + avvio manuale)
-    └── Models/AiSummary.php
+    ├── Models/AiSummary.php
+    └── Models/AiChatMessage.php
 ```
 
 ## Dipendenze Composer
@@ -126,6 +134,31 @@ Route::middleware(['web', 'auth', 'verified'])->group(function () {
 - Prefisso del nome per plugin (`ai.*`) per evitare collisioni con le rotte del core.
 - Wayfinder genera automaticamente `resources/js/routes/ai/index.ts` (cartella generata e in `.gitignore`), quindi il frontend del plugin usa `ai.summary(bookmark.id).url` invece di URL scritti a mano.
 
+## Chat con il singolo bookmark
+
+`BookmarkChatAgent` implementa `Agent` e `Conversational`: le `instructions()` iniettano il
+`content_text` del bookmark (troncato a `ai-chat.context_characters`) come unico contesto
+ammesso, `messages()` rilegge gli ultimi turni da `ai_chat_messages`. È deliberatamente
+*non* il `RemembersConversations` dell'SDK, che lega la conversazione all'utente: qui la
+conversazione appartiene al bookmark.
+
+`ChatController::store()` restituisce direttamente lo `StreamableAgentResponse`, che è
+`Responsable` e si serializza in SSE (`data: {json}\n\n`, chiuso da `data: [DONE]`). Il
+client filtra gli eventi `text_delta` e ignora il resto.
+
+Due dettagli da conoscere:
+
+- **La domanda si persiste a stream concluso**, dentro `then()`, insieme alla risposta.
+  Salvarla prima la farebbe rientrare nella history che `messages()` rilegge, duplicandola
+  nel prompt. Il prezzo è che uno stream interrotto non lascia traccia.
+- **La sessione resta lockata per tutta la durata dello stream**: con un modello locale
+  lento le altre richieste dello stesso utente aspettano. Si risolve spostando la rotta
+  fuori dal gruppo `web` (auth via token) o con un driver di sessione senza lock.
+
+Lato frontend il pannello sta nello slot `bookmark-read-aside` ed è caricato con `lazy()`:
+i componenti shadcn AI Elements (`conversation`, `prompt-input`) finiscono in un chunk a
+parte, non nel bundle principale.
+
 ## Accesso ai dati del core
 
 Il plugin **non** aggiunge relazioni ai model del core. Interroga per chiave esterna:
@@ -175,6 +208,9 @@ Slot esistenti:
 | Nome | Posizione | Props |
 | --- | --- | --- |
 | `bookmark-card-actions` | barra azioni della card bookmark | `bookmark: Bookmark` |
+| `bookmark-read-before-content` | pagina Reader, sopra l'articolo | `bookmark: Bookmark` |
+| `bookmark-read-aside` | pagina Reader, fuori dal flusso del testo (elementi fissi) | `bookmark: Bookmark` |
+| `dashboard-widgets` | colonna widget della dashboard | — |
 
 ## Pagine Inertia dei plugin
 
@@ -208,8 +244,9 @@ Le pagine dei plugin finiscono nel manifest Vite perché sono nel grafo dei modu
 
 In `tests/Feature/Packages/<Nome>/`, con Pest:
 
-- `AiPluginSlotTest.php` — verifica che la prop `plugins.ai` sia condivisa (se salta, il pulsante sparisce dall'interfaccia).
+- `AiPluginSlotTest.php` — verifica che la prop `plugins.ai` sia condivisa (se salta, il pulsante sparisce dall'interfaccia) e che il nome dello slot usato dal plugin esista davvero nella pagina del core.
 - `SummaryControllerTest.php` — pagina con summary, pagina senza summary, `403` sul bookmark di un altro utente.
+- `ChatControllerTest.php` — storico, streaming e persistenza del turno, contesto passato all'agent, `422` senza contenuto parsato, `503` senza modello configurato, `403` sul bookmark altrui.
 - `GenerateBookmarkSummaryTest.php` — generazione e persistenza, contenuto assente, modello non configurato, rigenerazione senza duplicati, listener messo in coda dall'evento del core.
 
 Le chiamate all'AI si fingono per agent, non globalmente: `Str::summarize()` usa

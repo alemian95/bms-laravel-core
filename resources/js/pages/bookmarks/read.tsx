@@ -143,6 +143,8 @@ export default function BookmarkRead({ bookmark }: { bookmark: Bookmark }) {
                     </div>
                 )}
             </div>
+
+            <PluginSlot name={`bookmark-read-aside`} bookmark={bookmark} />
         </>
     );
 }

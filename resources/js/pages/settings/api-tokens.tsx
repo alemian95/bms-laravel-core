@@ -51,8 +51,8 @@ export default function ApiTokens() {
 
     useEffect(() => {
         if (!copied) {
-return;
-}
+            return;
+        }
 
         const timeout = setTimeout(() => setCopied(false), 2000);
 

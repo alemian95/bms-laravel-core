@@ -68,6 +68,16 @@ Facoltative: `AI_SUMMARY_SENTENCES` (lunghezza del riassunto, default 4),
 Se `AI_SUMMARY_MODEL` manca, il plugin non genera nulla e lascia un avviso nei log: i
 bookmark continuano a essere salvati e analizzati normalmente.
 
+Lo stesso plugin aggiunge una **chat sull'articolo**: dalla pagina di lettura si apre un
+pannello laterale dove chiedere chiarimenti sul testo salvato. Le risposte arrivano in
+streaming, parola per parola, e la conversazione resta legata a quel bookmark: si riapre e
+si ritrova dov'era. Il modello risponde solo su quello che c'è nell'articolo; se la risposta
+non c'è, lo dice.
+
+Usa lo stesso modello dei riassunti, salvo indicarne un altro con `AI_CHAT_MODEL`.
+Facoltative: `AI_CHAT_PROVIDER`, `AI_CHAT_TIMEOUT`, `AI_CHAT_CONTEXT_CHARACTERS` (quanto
+testo dell'articolo passare al modello), `AI_CHAT_HISTORY_MESSAGES` (quanti turni ricordare).
+
 ## Com'è fatto un plugin
 
 ```

@@ -21,10 +21,25 @@ const AiDashboardWidget = lazy(
     () => import('./components/ai-dashboard-widget'),
 );
 
+/** Stesso motivo: il pannello di chat porta con sé i componenti AI Elements. */
+const BookmarkChat = lazy(() => import('./components/bookmark-chat'));
+
 function AiDashboardWidgetSlot() {
     return (
         <Suspense fallback={<Skeleton className={`h-64 w-full rounded-xl`} />}>
             <AiDashboardWidget />
+        </Suspense>
+    );
+}
+
+function BookmarkChatSlot({ bookmark }: { bookmark: Bookmark }) {
+    if (bookmark.status === 'pending') {
+        return null;
+    }
+
+    return (
+        <Suspense fallback={null}>
+            <BookmarkChat bookmark={bookmark} />
         </Suspense>
     );
 }
@@ -76,5 +91,6 @@ function TldrAccordion() {
 export default {
     'bookmark-card-actions': SummaryButton,
     'bookmark-read-before-content': TldrAccordion,
+    'bookmark-read-aside': BookmarkChatSlot,
     'dashboard-widgets': AiDashboardWidgetSlot,
 };
