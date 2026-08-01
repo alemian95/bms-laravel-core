@@ -7,6 +7,12 @@ Funzionalità opzionali sotto `packages/`, attivabili e disattivabili dal solo `
 - [Plugin — documentazione generale](plugin/README.md) — cos'è un plugin, cosa può fare, come si attiva e si configura, regole di sviluppo, [cosa serve al plugin `ai`](plugin/README.md#il-plugin-ai).
 - [Plugin — documentazione tecnica](plugin/technical.md) — provider, config e [dipendenze](plugin/technical.md#dipendenze-composer), rotte, eventi, slot frontend, pagine Inertia, [modifiche al core](plugin/technical.md#modifiche-al-core) e checklist per un nuovo plugin.
 
+## Lavagne
+
+Elenchi di lavoro aperti, rivalutati periodicamente (`docs/lavagne/`).
+
+- [ponytail — audit over-engineering](lavagne/ponytail.md) — cosa cancellare, semplificare o sostituire con stdlib/native. Report del 2026-08-01.
+
 ## Specifiche
 
 Design validati prima dell'implementazione (`docs/superpowers/specs/`).
