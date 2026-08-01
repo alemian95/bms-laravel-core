@@ -1,5 +1,5 @@
-import type { ApiError, Bookmark, Category } from './types';
 import { getSettings } from './storage';
+import type { ApiError, Bookmark, Category } from './types';
 
 export class ApiNotConfiguredError extends Error {
     constructor() {
@@ -18,6 +18,7 @@ export class ApiRequestError extends Error {
 
 async function apiFetch(path: string, init: RequestInit = {}): Promise<Response> {
     const { apiUrl, apiToken } = await getSettings();
+
     if (!apiUrl || !apiToken) {
         throw new ApiNotConfiguredError();
     }
@@ -25,6 +26,7 @@ async function apiFetch(path: string, init: RequestInit = {}): Promise<Response>
     const headers = new Headers(init.headers);
     headers.set('Authorization', `Bearer ${apiToken}`);
     headers.set('Accept', 'application/json');
+
     if (init.body && !headers.has('Content-Type')) {
         headers.set('Content-Type', 'application/json');
     }
@@ -36,11 +38,13 @@ async function apiFetch(path: string, init: RequestInit = {}): Promise<Response>
 
     if (!response.ok) {
         let body: ApiError = {};
+
         try {
             body = (await response.json()) as ApiError;
         } catch {
             // empty body or non-JSON response
         }
+
         throw new ApiRequestError(response.status, body);
     }
 
@@ -50,6 +54,7 @@ async function apiFetch(path: string, init: RequestInit = {}): Promise<Response>
 export async function listCategories(): Promise<Category[]> {
     const response = await apiFetch('/categories');
     const payload = (await response.json()) as { data: Category[] };
+
     return payload.data;
 }
 
@@ -65,12 +70,14 @@ export async function createBookmark(
         }),
     });
     const payload = (await response.json()) as { data: Bookmark };
+
     return payload.data;
 }
 
 export async function ping(): Promise<boolean> {
     try {
         await apiFetch('/user');
+
         return true;
     } catch {
         return false;

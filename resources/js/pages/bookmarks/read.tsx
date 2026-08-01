@@ -1,13 +1,13 @@
-import { Head, Link, router, useHttp } from '@inertiajs/react';
-import { ArrowLeftIcon, ExternalLinkIcon } from 'lucide-react';
+import { Head, router, useHttp } from '@inertiajs/react';
+import { ExternalLinkIcon } from 'lucide-react';
 import { useEffect, useRef } from 'react';
 
+import { BookmarkHeader } from '@/components/bookmark-header';
+import { PluginSlot } from '@/components/plugin-slot';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useScrollPercentage } from '@/hooks/use-scroll-percentage';
 import bookmarks from '@/routes/bookmarks';
 import type { Bookmark } from '@/types';
-import { BookmarkHeader } from '@/components/bookmark-header';
-import { PluginSlot } from '@/components/plugin-slot';
 
 export default function BookmarkRead({ bookmark }: { bookmark: Bookmark }) {
     const isPending = bookmark.status === 'pending';
@@ -49,6 +49,9 @@ export default function BookmarkRead({ bookmark }: { bookmark: Bookmark }) {
         updateProgressHttp.setData({
             progress: debouncedScrollPercentage,
         });
+        // ponytail: updateProgressHttp omesso, la sua identità cambia a ogni
+        // setData e includerlo farebbe un loop infinito
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [debouncedScrollPercentage]);
 
     useEffect(() => {
@@ -60,6 +63,9 @@ export default function BookmarkRead({ bookmark }: { bookmark: Bookmark }) {
         }
 
         updateProgressHttp.patch(bookmarks.updateProgress(bookmark.id).url);
+        // ponytail: reading_progress è il valore server di riferimento, non un
+        // trigger; updateProgressHttp è instabile come sopra
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [bookmark.id, updateProgressHttp.data.progress]);
 
     useEffect(() => {
@@ -72,7 +78,7 @@ export default function BookmarkRead({ bookmark }: { bookmark: Bookmark }) {
 
             return () => clearTimeout(timer);
         }
-    }, [hasContent, bookmark.reading_progress]);
+    }, [hasContent, bookmark.scroll_position]);
 
     useEffect(() => {
         if (!shouldPoll) {

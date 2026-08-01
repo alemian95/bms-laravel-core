@@ -22,11 +22,13 @@ function setFeedback(message: string, kind: 'success' | 'error' | '') {
 
 async function getCurrentTabUrl(): Promise<string | null> {
     const [tab] = await browser.tabs.query({ active: true, currentWindow: true });
+
     return tab?.url ?? null;
 }
 
 async function populateCategories() {
     const categories = await listCategories();
+
     for (const cat of categories) {
         const option = document.createElement('option');
         option.value = String(cat.id);
@@ -42,17 +44,21 @@ async function init() {
             event.preventDefault();
             void browser.runtime.openOptionsPage();
         });
+
         return;
     }
 
     saveForm.hidden = false;
 
     const url = await getCurrentTabUrl();
+
     if (!url || !/^https?:\/\//.test(url)) {
         currentUrlEl.textContent = 'No saveable URL in current tab.';
         saveButton.disabled = true;
+
         return;
     }
+
     currentUrlEl.textContent = url;
     currentUrlEl.dataset.url = url;
 
@@ -74,7 +80,10 @@ async function init() {
 saveForm.addEventListener('submit', async (event) => {
     event.preventDefault();
     const url = currentUrlEl.dataset.url;
-    if (!url) return;
+
+    if (!url) {
+return;
+}
 
     saveButton.disabled = true;
     setFeedback('Saving…', '');
@@ -93,6 +102,7 @@ saveForm.addEventListener('submit', async (event) => {
         } else {
             setFeedback((err as Error).message, 'error');
         }
+
         saveButton.disabled = false;
     }
 });

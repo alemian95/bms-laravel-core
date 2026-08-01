@@ -14,13 +14,20 @@ function setFeedback(message: string, kind: 'success' | 'error' | '') {
 
 async function loadCurrent() {
     const { apiUrl, apiToken } = await getSettings();
-    if (apiUrl) apiUrlInput.value = apiUrl;
-    if (apiToken) apiTokenInput.value = apiToken;
+
+    if (apiUrl) {
+apiUrlInput.value = apiUrl;
+}
+
+    if (apiToken) {
+apiTokenInput.value = apiToken;
+}
 }
 
 form.addEventListener('submit', async (event) => {
     event.preventDefault();
     setFeedback('', '');
+
     try {
         await saveSettings({
             apiUrl: apiUrlInput.value.trim(),
@@ -34,6 +41,7 @@ form.addEventListener('submit', async (event) => {
 
 testButton.addEventListener('click', async () => {
     setFeedback('Testing…', '');
+
     try {
         await saveSettings({
             apiUrl: apiUrlInput.value.trim(),
