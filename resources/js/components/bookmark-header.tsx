@@ -3,8 +3,13 @@ import { ArrowLeftIcon, ExternalLinkIcon } from 'lucide-react';
 import bookmarks from '@/routes/bookmarks';
 import type { Bookmark } from '@/types';
 
-export function BookmarkHeader({bookmark, isPending}: { bookmark: Bookmark, isPending: boolean}) {
-
+export function BookmarkHeader({
+    bookmark,
+    isPending,
+}: {
+    bookmark: Bookmark;
+    isPending: boolean;
+}) {
     return (
         <>
             <Link
@@ -30,7 +35,10 @@ export function BookmarkHeader({bookmark, isPending}: { bookmark: Bookmark, isPe
                             {bookmark.title ?? bookmark.url}
                         </h1>
 
-                        {bookmark.url != null && true && bookmark.title != null && true && (
+                        {bookmark.url != null &&
+                            true &&
+                            bookmark.title != null &&
+                            true && (
                                 <img
                                     src={bookmark.thumbnail_url!}
                                     alt={bookmark.title!}
