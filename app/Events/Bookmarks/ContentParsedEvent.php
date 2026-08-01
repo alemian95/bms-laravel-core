@@ -16,18 +16,17 @@ class ContentParsedEvent
      */
     public function __construct(
         public Bookmark $bookmark
-    )
-    {}
+    ) {}
 
-//    /**
-//     * Get the channels the event should broadcast on.
-//     *
-//     * @return array<int, Channel>
-//     */
-//    public function broadcastOn(): array
-//    {
-//        return [
-//            new PrivateChannel('channel-name'),
-//        ];
-//    }
+    //    /**
+    //     * Get the channels the event should broadcast on.
+    //     *
+    //     * @return array<int, Channel>
+    //     */
+    //    public function broadcastOn(): array
+    //    {
+    //        return [
+    //            new PrivateChannel('channel-name'),
+    //        ];
+    //    }
 }
