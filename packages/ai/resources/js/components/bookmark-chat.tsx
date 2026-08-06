@@ -1,6 +1,6 @@
+import { renderHtml } from '@tanstack/markdown';
 import { MessageSquareIcon, SparklesIcon, Trash2Icon } from 'lucide-react';
 import { useState } from 'react';
-
 import {
     Conversation,
     ConversationContent,
@@ -26,12 +26,13 @@ import {
 } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
 import type { Bookmark } from '@/types';
-
 import { useBookmarkChat } from '../hooks/use-bookmark-chat';
 import type { ChatMessage } from '../hooks/use-bookmark-chat';
 
 function ChatBubble({ message }: { message: ChatMessage }) {
     const isUser = message.role === 'user';
+
+    const html = message.content === '' ? null : renderHtml(message.content);
 
     return (
         <div
@@ -40,15 +41,15 @@ function ChatBubble({ message }: { message: ChatMessage }) {
                 isUser ? 'ml-auto items-end' : 'items-start',
             )}
         >
-            <div
-                className={cn(
-                    'rounded-lg px-3 py-2 text-sm whitespace-pre-wrap',
-                    isUser
-                        ? 'bg-secondary text-secondary-foreground'
-                        : 'text-foreground',
-                )}
-            >
-                {message.content === '' ? (
+            {message.content === '' ? (
+                <div
+                    className={cn(
+                        'prose rounded-lg px-3 py-2 text-sm whitespace-pre-wrap',
+                        isUser
+                            ? 'bg-secondary text-secondary-foreground'
+                            : 'bg-muted text-foreground',
+                    )}
+                >
                     <span
                         className={`inline-flex gap-1 text-muted-foreground`}
                         aria-label={`L'assistente sta rispondendo`}
@@ -63,10 +64,18 @@ function ChatBubble({ message }: { message: ChatMessage }) {
                             className={`size-1.5 animate-pulse rounded-full bg-current [animation-delay:300ms]`}
                         />
                     </span>
-                ) : (
-                    message.content
-                )}
-            </div>
+                </div>
+            ) : (
+                <div
+                    className={cn(
+                        'prose rounded-lg px-3 py-2 text-sm whitespace-pre-wrap',
+                        isUser
+                            ? 'bg-secondary text-secondary-foreground'
+                            : 'bg-muted text-foreground',
+                    )}
+                    dangerouslySetInnerHTML={{ __html: html ?? '' }}
+                ></div>
+            )}
         </div>
     );
 }

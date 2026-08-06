@@ -1,6 +1,6 @@
+import { resolve } from 'node:path';
 import { defineConfig } from 'vite';
 import webExtension from 'vite-plugin-web-extension';
-import { resolve } from 'node:path';
 
 export default defineConfig({
     root: 'src',
