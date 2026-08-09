@@ -1,5 +1,6 @@
 import { Link } from '@inertiajs/react';
 import { ArrowLeftIcon, ExternalLinkIcon } from 'lucide-react';
+import { useTranslation } from '@/hooks/use-translation';
 import bookmarks from '@/routes/bookmarks';
 import type { Bookmark } from '@/types';
 
@@ -10,13 +11,15 @@ export function BookmarkHeader({
     bookmark: Bookmark;
     isPending: boolean;
 }) {
+    const { t } = useTranslation();
+
     return (
         <>
             <Link
                 href={bookmarks.index().url}
                 className={`mb-6 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground`}
             >
-                <ArrowLeftIcon className={`size-4`} /> Back to bookmarks
+                <ArrowLeftIcon className={`size-4`} /> {t('Back to bookmarks')}
             </Link>
 
             <header className={`mb-8 border-b pb-6`}>
@@ -73,7 +76,7 @@ export function BookmarkHeader({
                                 rel={`noreferrer noopener`}
                                 className={`ml-auto inline-flex items-center gap-1 hover:text-foreground`}
                             >
-                                Open original{' '}
+                                {t('Open original')}{' '}
                                 <ExternalLinkIcon className={`size-3`} />
                             </a>
                         </div>

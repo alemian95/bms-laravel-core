@@ -10,6 +10,7 @@ import {
     AccordionTrigger,
 } from '@/components/ui/accordion';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useTranslation } from '@/hooks/use-translation';
 import ai from '@/routes/ai';
 import type { Bookmark } from '@/types';
 
@@ -45,6 +46,8 @@ function BookmarkChatSlot({ bookmark }: { bookmark: Bookmark }) {
 }
 
 function SummaryButton({ bookmark }: { bookmark: Bookmark }) {
+    const { t } = useTranslation();
+
     if (bookmark.status === 'pending') {
         return null;
     }
@@ -54,7 +57,7 @@ function SummaryButton({ bookmark }: { bookmark: Bookmark }) {
             href={ai.summary(bookmark.id).url}
             className={`inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground`}
         >
-            <SparklesIcon className={`size-3`} /> Summary
+            <SparklesIcon className={`size-3`} /> {t('Summary')}
         </Link>
     );
 }

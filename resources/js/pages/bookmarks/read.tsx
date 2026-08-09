@@ -1,4 +1,4 @@
-import { Head, router, useHttp } from '@inertiajs/react';
+import { Head, router, setLayoutProps, useHttp } from '@inertiajs/react';
 import { ExternalLinkIcon } from 'lucide-react';
 import { useEffect, useRef } from 'react';
 
@@ -6,10 +6,24 @@ import { BookmarkHeader } from '@/components/bookmark-header';
 import { PluginSlot } from '@/components/plugin-slot';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useScrollPercentage } from '@/hooks/use-scroll-percentage';
+import { useTranslation } from '@/hooks/use-translation';
 import bookmarks from '@/routes/bookmarks';
 import type { Bookmark } from '@/types';
 
 export default function BookmarkRead({ bookmark }: { bookmark: Bookmark }) {
+    const { t } = useTranslation();
+
+    /** `bookmark.title` è dato utente: entra grezzo, mai dentro `t()`. */
+    setLayoutProps({
+        breadcrumbs: [
+            { title: t('Bookmarks'), href: bookmarks.index().url },
+            {
+                title: bookmark.title ?? t('Reader'),
+                href: bookmarks.read(bookmark.id).url,
+            },
+        ],
+    });
+
     const isPending = bookmark.status === 'pending';
     const hasContent =
         bookmark.content_html !== null && bookmark.content_html.length > 0;
@@ -94,7 +108,7 @@ export default function BookmarkRead({ bookmark }: { bookmark: Bookmark }) {
 
     return (
         <>
-            <Head title={bookmark.title ?? 'Reader'} />
+            <Head title={bookmark.title ?? t('Reader')} />
 
             <div className={`mx-auto max-w-3xl px-4 py-6`}>
                 <BookmarkHeader bookmark={bookmark} isPending={isPending} />
@@ -121,7 +135,7 @@ export default function BookmarkRead({ bookmark }: { bookmark: Bookmark }) {
                             />
                         ))}
                         <p className={`mt-4 text-sm text-muted-foreground`}>
-                            Extracting article content…
+                            {t('Extracting article content…')}
                         </p>
                     </div>
                 ) : (
@@ -129,7 +143,9 @@ export default function BookmarkRead({ bookmark }: { bookmark: Bookmark }) {
                         className={`rounded-lg border border-dashed p-8 text-center`}
                     >
                         <p className={`mb-4 text-muted-foreground`}>
-                            We couldn't extract readable content from this page.
+                            {t(
+                                "We couldn't extract readable content from this page.",
+                            )}
                         </p>
                         <a
                             href={bookmark.url}
@@ -137,7 +153,7 @@ export default function BookmarkRead({ bookmark }: { bookmark: Bookmark }) {
                             rel={`noreferrer noopener`}
                             className={`inline-flex items-center gap-1 text-sm font-medium hover:underline`}
                         >
-                            Open original{' '}
+                            {t('Open original')}{' '}
                             <ExternalLinkIcon className={`size-4`} />
                         </a>
                     </div>
@@ -148,13 +164,3 @@ export default function BookmarkRead({ bookmark }: { bookmark: Bookmark }) {
         </>
     );
 }
-
-BookmarkRead.layout = ({ bookmark }: { bookmark: Bookmark }) => ({
-    breadcrumbs: [
-        { title: 'Bookmarks', href: bookmarks.index().url },
-        {
-            title: bookmark.title ?? 'Reader',
-            href: bookmarks.read(bookmark.id).url,
-        },
-    ],
-});

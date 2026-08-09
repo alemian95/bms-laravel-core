@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 
 import { PluginSlot } from '@/components/plugin-slot';
+import { useTranslation } from '@/hooks/use-translation';
 import bookmarks from '@/routes/bookmarks';
 import type { Bookmark } from '@/types';
 
@@ -17,11 +18,12 @@ export function BookmarkCard({
     bookmark: Bookmark;
     highlight?: { title?: string; content_text?: string };
 }) {
+    const { t } = useTranslation();
     const isPending = bookmark.status === 'pending';
     const isFailed = bookmark.status === 'failed';
 
     const handleDelete = () => {
-        if (confirm('Are you sure you want to delete this bookmark?')) {
+        if (confirm(t('Are you sure you want to delete this bookmark?'))) {
             router.delete(bookmarks.destroy(bookmark.id), {
                 preserveScroll: true,
             });
@@ -53,7 +55,7 @@ export function BookmarkCard({
                     <div
                         className={`flex size-full items-center justify-center text-xs text-muted-foreground`}
                     >
-                        No preview
+                        {t('No preview')}
                     </div>
                 )}
 
@@ -61,7 +63,7 @@ export function BookmarkCard({
                     <div
                         className={`text-destructive-foreground absolute top-2 right-2 flex items-center gap-1 rounded-full bg-destructive px-2 py-0.5 text-xs`}
                     >
-                        <AlertTriangleIcon className={`size-3`} /> Failed
+                        <AlertTriangleIcon className={`size-3`} /> {t('Failed')}
                     </div>
                 )}
 
@@ -142,7 +144,8 @@ export function BookmarkCard({
                                 href={bookmarks.read(bookmark.id).url}
                                 className={`inline-flex items-center gap-1 text-xs font-medium text-foreground hover:underline`}
                             >
-                                <BookOpenIcon className={`size-3`} /> Read
+                                <BookOpenIcon className={`size-3`} />{' '}
+                                {t('Read')}
                             </Link>
                         )}
                         <a
@@ -151,7 +154,8 @@ export function BookmarkCard({
                             rel={`noreferrer noopener`}
                             className={`inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground`}
                         >
-                            Open <ExternalLinkIcon className={`size-3`} />
+                            {t('Open')}{' '}
+                            <ExternalLinkIcon className={`size-3`} />
                         </a>
                         <PluginSlot
                             name={`bookmark-card-actions`}
@@ -161,7 +165,7 @@ export function BookmarkCard({
                     <button
                         onClick={handleDelete}
                         className={`cursor-pointer text-muted-foreground hover:text-destructive`}
-                        aria-label={`Delete bookmark`}
+                        aria-label={t('Delete bookmark')}
                     >
                         <Trash2Icon className={`size-4`} />
                     </button>

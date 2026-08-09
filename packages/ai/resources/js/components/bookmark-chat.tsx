@@ -24,12 +24,14 @@ import {
     SheetTitle,
     SheetTrigger,
 } from '@/components/ui/sheet';
+import { useTranslation } from '@/hooks/use-translation';
 import { cn } from '@/lib/utils';
 import type { Bookmark } from '@/types';
 import { useBookmarkChat } from '../hooks/use-bookmark-chat';
 import type { ChatMessage } from '../hooks/use-bookmark-chat';
 
 function ChatBubble({ message }: { message: ChatMessage }) {
+    const { t } = useTranslation();
     const isUser = message.role === 'user';
 
     const html = message.content === '' ? null : renderHtml(message.content);
@@ -52,7 +54,7 @@ function ChatBubble({ message }: { message: ChatMessage }) {
                 >
                     <span
                         className={`inline-flex gap-1 text-muted-foreground`}
-                        aria-label={`L'assistente sta rispondendo`}
+                        aria-label={t('The assistant is replying')}
                     >
                         <span
                             className={`size-1.5 animate-pulse rounded-full bg-current`}
@@ -85,6 +87,7 @@ function ChatBubble({ message }: { message: ChatMessage }) {
  * quando lo sheet si apre: finché resta chiuso non parte nessuna richiesta.
  */
 export default function BookmarkChat({ bookmark }: { bookmark: Bookmark }) {
+    const { t } = useTranslation();
     const [isOpen, setIsOpen] = useState(false);
 
     return (
@@ -95,8 +98,8 @@ export default function BookmarkChat({ bookmark }: { bookmark: Bookmark }) {
                     size={`sm`}
                     className={`fixed right-6 bottom-6 z-40 shadow-lg`}
                 >
-                    <MessageSquareIcon className={`size-4`} /> Chiedi
-                    all'articolo
+                    <MessageSquareIcon className={`size-4`} />{' '}
+                    {t('Ask the article')}
                 </Button>
             </SheetTrigger>
 
@@ -112,6 +115,7 @@ export default function BookmarkChat({ bookmark }: { bookmark: Bookmark }) {
 }
 
 function ChatPanel({ bookmark }: { bookmark: Bookmark }) {
+    const { t } = useTranslation();
     const { messages, status, error, send, stop, clear } = useBookmarkChat(
         bookmark.id,
     );
@@ -144,14 +148,14 @@ function ChatPanel({ bookmark }: { bookmark: Bookmark }) {
                     className={`flex items-center justify-between gap-2`}
                 >
                     <span>
-                        Le risposte usano solo il testo di questo articolo.
+                        {t('Answers only use the text of this article.')}
                     </span>
                     {messages.length > 0 && (
                         <Button
                             variant={`ghost`}
                             size={`icon`}
                             onClick={() => void clear()}
-                            aria-label={`Svuota la conversazione`}
+                            aria-label={t('Clear the conversation')}
                         >
                             <Trash2Icon className={`size-4`} />
                         </Button>
@@ -164,8 +168,10 @@ function ChatPanel({ bookmark }: { bookmark: Bookmark }) {
                     {messages.length === 0 ? (
                         <ConversationEmptyState
                             icon={<MessageSquareIcon className={`size-6`} />}
-                            title={`Nessuna domanda ancora`}
-                            description={`Chiedi un chiarimento, un confronto o un dettaglio dell'articolo.`}
+                            title={t('No questions yet')}
+                            description={t(
+                                'Ask for a clarification, a comparison or a detail from the article.',
+                            )}
                         />
                     ) : (
                         messages.map((message) => (
@@ -189,7 +195,7 @@ function ChatPanel({ bookmark }: { bookmark: Bookmark }) {
                 <PromptInput onSubmit={handleSubmit}>
                     <PromptInputBody>
                         <PromptInputTextarea
-                            placeholder={`Fai una domanda sull'articolo…`}
+                            placeholder={t('Ask a question about the article…')}
                             value={draft}
                             onChange={(event) => setDraft(event.target.value)}
                         />

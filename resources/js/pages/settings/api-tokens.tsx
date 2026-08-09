@@ -14,6 +14,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import { useTranslation } from '@/hooks/use-translation';
 import { destroy } from '@/routes/api-tokens';
 
 type Token = {
@@ -40,6 +41,7 @@ type FlashData = {
 };
 
 export default function ApiTokens() {
+    const { t } = useTranslation();
     const page = usePage<PageProps>();
     const tokens = page.props.tokens ?? [];
     const presets = page.props.presets ?? [];
@@ -60,7 +62,7 @@ export default function ApiTokens() {
     }, [copied]);
 
     const revoke = (id: number) => {
-        if (confirm('Revoke this token? This action cannot be undone.')) {
+        if (confirm(t('Revoke this token? This action cannot be undone.'))) {
             router.delete(destroy(id).url);
         }
     };
@@ -81,24 +83,30 @@ export default function ApiTokens() {
 
     return (
         <>
-            <Head title="API Tokens" />
+            <Head title={t('API Tokens')} />
 
-            <h1 className="sr-only">API Tokens</h1>
+            <h1 className="sr-only">{t('API Tokens')}</h1>
 
             <div className="space-y-6">
                 <Heading
                     variant="small"
-                    title="API Tokens"
-                    description="Issue tokens for the browser extension, mobile app or other clients that need API access."
+                    title={t('API Tokens')}
+                    description={t(
+                        'Issue tokens for the browser extension, mobile app or other clients that need API access.',
+                    )}
                 />
 
                 {newToken && (
                     <div className="rounded-md border border-green-500 bg-green-50 p-4 dark:bg-green-950/30">
                         <p className="text-sm font-semibold">
-                            Token "{newToken.name}" created
+                            {t('Token ":name" created', {
+                                name: newToken.name,
+                            })}
                         </p>
                         <p className="mt-1 text-xs text-muted-foreground">
-                            Copy this token now — it will not be shown again.
+                            {t(
+                                'Copy this token now — it will not be shown again.',
+                            )}
                         </p>
                         <div className="mt-2 flex items-start gap-2">
                             <code
@@ -114,17 +122,17 @@ export default function ApiTokens() {
                                 onClick={() =>
                                     copyToken(newToken.plainTextToken)
                                 }
-                                aria-label="Copy token to clipboard"
+                                aria-label={t('Copy token to clipboard')}
                             >
                                 {copied ? (
                                     <>
                                         <Check className="h-4 w-4" />
-                                        Copied
+                                        {t('Copied')}
                                     </>
                                 ) : (
                                     <>
                                         <Copy className="h-4 w-4" />
-                                        Copy
+                                        {t('Copy')}
                                     </>
                                 )}
                             </Button>
@@ -141,19 +149,19 @@ export default function ApiTokens() {
                     {({ processing, errors }) => (
                         <>
                             <div className="grid gap-2">
-                                <Label htmlFor="name">Token name</Label>
+                                <Label htmlFor="name">{t('Token name')}</Label>
                                 <Input
                                     id="name"
                                     name="name"
                                     required
-                                    placeholder="My Chrome on MacBook"
+                                    placeholder={t('My Chrome on MacBook')}
                                 />
                                 <InputError message={errors.name} />
                             </div>
 
                             <div className="grid gap-2">
                                 <Label htmlFor="preset">
-                                    Permission preset
+                                    {t('Permission preset')}
                                 </Label>
                                 <input
                                     type="hidden"
@@ -165,7 +173,9 @@ export default function ApiTokens() {
                                     onValueChange={setPreset}
                                 >
                                     <SelectTrigger id="preset">
-                                        <SelectValue placeholder="Select a preset" />
+                                        <SelectValue
+                                            placeholder={t('Select a preset')}
+                                        />
                                     </SelectTrigger>
                                     <SelectContent>
                                         {presets.map((p) => (
@@ -187,44 +197,51 @@ export default function ApiTokens() {
                             </div>
 
                             <Button type="submit" disabled={processing}>
-                                Create token
+                                {t('Create token')}
                             </Button>
                         </>
                     )}
                 </Form>
 
                 <div className="space-y-2">
-                    <h3 className="text-sm font-medium">Existing tokens</h3>
+                    <h3 className="text-sm font-medium">
+                        {t('Existing tokens')}
+                    </h3>
                     {tokens.length === 0 ? (
                         <p className="text-sm text-muted-foreground">
-                            No tokens yet.
+                            {t('No tokens yet.')}
                         </p>
                     ) : (
                         <ul className="divide-y rounded-md border">
-                            {tokens.map((t) => (
+                            {tokens.map((token) => (
                                 <li
-                                    key={t.id}
+                                    key={token.id}
                                     className="flex items-start justify-between gap-4 p-3"
                                 >
                                     <div className="min-w-0 flex-1">
                                         <p className="truncate font-medium">
-                                            {t.name}
+                                            {token.name}
                                         </p>
                                         <p className="text-xs text-muted-foreground">
-                                            {t.last_used_at
-                                                ? `Last used ${t.last_used_at}`
-                                                : 'Never used'}
+                                            {token.last_used_at
+                                                ? t('Last used :date', {
+                                                      date: token.last_used_at,
+                                                  })
+                                                : t('Never used')}
                                         </p>
                                         <p className="text-xs text-muted-foreground">
-                                            Abilities:{' '}
-                                            {t.abilities?.join(', ') ?? 'none'}
+                                            {t('Abilities:')}{' '}
+                                            {token.abilities?.join(', ') ??
+                                                t('none')}
                                         </p>
                                     </div>
                                     <Button
                                         variant="ghost"
                                         size="sm"
-                                        onClick={() => revoke(t.id)}
-                                        aria-label={`Revoke token ${t.name}`}
+                                        onClick={() => revoke(token.id)}
+                                        aria-label={t('Revoke token :name', {
+                                            name: token.name,
+                                        })}
                                     >
                                         <Trash2 className="h-4 w-4" />
                                     </Button>

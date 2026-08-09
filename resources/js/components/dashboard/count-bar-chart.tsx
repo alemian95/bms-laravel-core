@@ -13,6 +13,7 @@ import {
     ChartTooltipContent,
 } from '@/components/ui/chart';
 import type { ChartConfig } from '@/components/ui/chart';
+import { useTranslation } from '@/hooks/use-translation';
 
 export type CountBar = {
     label: string;
@@ -25,24 +26,26 @@ export type CountBar = {
  * only repeat it. Values are printed at the bar end, which also covers the
  * contrast shortfall of `--chart-1` against the dark surface.
  */
-const config = {
-    value: {
-        label: 'Bookmarks',
-        color: 'var(--chart-1)',
-    },
-} satisfies ChartConfig;
-
 export function CountBarChart({
     title,
     description,
     data,
-    emptyMessage = 'Nothing to show yet.',
+    emptyMessage,
 }: {
     title: string;
     description?: string;
     data: CountBar[];
     emptyMessage?: string;
 }) {
+    const { t } = useTranslation();
+
+    const config = {
+        value: {
+            label: t('Bookmarks'),
+            color: 'var(--chart-1)',
+        },
+    } satisfies ChartConfig;
+
     return (
         <Card>
             <CardHeader>
@@ -54,7 +57,7 @@ export function CountBarChart({
             <CardContent>
                 {data.length === 0 ? (
                     <p className={`py-8 text-sm text-muted-foreground`}>
-                        {emptyMessage}
+                        {emptyMessage ?? t('Nothing to show yet.')}
                     </p>
                 ) : (
                     <ChartContainer

@@ -20,6 +20,7 @@ class AiFeatureServiceProvider extends PackageServiceProvider
             ->hasConfigFile(['ai-summary', 'ai-chat'])
             ->discoversMigrations()
             ->runsMigrations()
+            ->hasTranslations()
             ->hasRoute('web');
 
         // register event listeners

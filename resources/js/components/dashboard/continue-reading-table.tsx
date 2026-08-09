@@ -7,6 +7,7 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
+import { useTranslation } from '@/hooks/use-translation';
 import bookmarks from '@/routes/bookmarks';
 import type { ContinueReadingItem } from '@/types';
 
@@ -15,18 +16,22 @@ export function ContinueReadingTable({
 }: {
     items: ContinueReadingItem[];
 }) {
+    const { t } = useTranslation();
+
     return (
         <Card>
             <CardHeader>
-                <CardTitle>Continue reading</CardTitle>
+                <CardTitle>{t('Continue reading')}</CardTitle>
                 <CardDescription>
-                    Articles you started but haven&apos;t finished
+                    {t("Articles you started but haven't finished")}
                 </CardDescription>
             </CardHeader>
             <CardContent>
                 {items.length === 0 ? (
                     <p className={`py-8 text-sm text-muted-foreground`}>
-                        Nothing in progress. Open a bookmark to start reading.
+                        {t(
+                            'Nothing in progress. Open a bookmark to start reading.',
+                        )}
                     </p>
                 ) : (
                     <div className={`overflow-x-auto`}>
@@ -36,17 +41,17 @@ export function ContinueReadingTable({
                                     className={`border-b text-left text-xs text-muted-foreground`}
                                 >
                                     <th className={`pb-2 font-medium`}>
-                                        Article
+                                        {t('Article')}
                                     </th>
                                     <th
                                         className={`hidden pb-2 font-medium sm:table-cell`}
                                     >
-                                        Category
+                                        {t('Category')}
                                     </th>
                                     <th
                                         className={`w-32 pb-2 text-right font-medium`}
                                     >
-                                        Progress
+                                        {t('Progress')}
                                     </th>
                                 </tr>
                             </thead>

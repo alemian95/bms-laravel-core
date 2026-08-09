@@ -84,6 +84,14 @@ return [
 
     'faker_locale' => env('APP_FAKER_LOCALE', 'en_US'),
 
+    /**
+     * Locales the UI can be served in. The first entry is used when neither the
+     * user preference nor the Accept-Language header match.
+     *
+     * @var list<string>
+     */
+    'supported_locales' => ['en', 'it'],
+
     /*
     |--------------------------------------------------------------------------
     | Encryption Key

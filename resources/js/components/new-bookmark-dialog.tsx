@@ -21,10 +21,12 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import { useTranslation } from '@/hooks/use-translation';
 import bookmarks from '@/routes/bookmarks';
 import type { Category } from '@/types';
 
 export function NewBookmarkDialog({ categories }: { categories: Category[] }) {
+    const { t } = useTranslation();
     const [open, setOpen] = useState(false);
     const { data, setData, post, processing, errors, reset } = useForm<{
         url: string;
@@ -50,12 +52,12 @@ export function NewBookmarkDialog({ categories }: { categories: Category[] }) {
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
                 <Button className={`cursor-pointer`}>
-                    <PlusIcon className={`size-4`} /> New Bookmark
+                    <PlusIcon className={`size-4`} /> {t('New Bookmark')}
                 </Button>
             </DialogTrigger>
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>Save a new bookmark</DialogTitle>
+                    <DialogTitle>{t('Save a new bookmark')}</DialogTitle>
                 </DialogHeader>
 
                 <form onSubmit={submit} className={`flex flex-col gap-4`}>
@@ -78,7 +80,9 @@ export function NewBookmarkDialog({ categories }: { categories: Category[] }) {
                     </div>
 
                     <div className={`flex flex-col gap-2`}>
-                        <Label htmlFor={`category`}>Category (optional)</Label>
+                        <Label htmlFor={`category`}>
+                            {t('Category (optional)')}
+                        </Label>
                         <Select
                             value={data.category_id || 'none'}
                             onValueChange={(value) =>
@@ -89,11 +93,11 @@ export function NewBookmarkDialog({ categories }: { categories: Category[] }) {
                             }
                         >
                             <SelectTrigger id={`category`} className={`w-full`}>
-                                <SelectValue placeholder={`No category`} />
+                                <SelectValue placeholder={t('No category')} />
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectItem value={`none`}>
-                                    No category
+                                    {t('No category')}
                                 </SelectItem>
                                 {categories.map((category) => (
                                     <SelectItem
@@ -118,7 +122,7 @@ export function NewBookmarkDialog({ categories }: { categories: Category[] }) {
                             disabled={processing}
                             className={`cursor-pointer`}
                         >
-                            {processing ? 'Saving…' : 'Save bookmark'}
+                            {processing ? t('Saving…') : t('Save bookmark')}
                         </Button>
                     </DialogFooter>
                 </form>

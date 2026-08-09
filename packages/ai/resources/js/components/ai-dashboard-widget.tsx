@@ -15,6 +15,7 @@ import {
     ChartTooltipContent,
 } from '@/components/ui/chart';
 import type { ChartConfig } from '@/components/ui/chart';
+import { useTranslation } from '@/hooks/use-translation';
 import ai from '@/routes/ai';
 
 type AiStats = {
@@ -29,19 +30,23 @@ type AiStats = {
     weekly: { week: string; generated: number }[];
 };
 
-/** Distinct from the core charts: summaries are a different entity. */
-const config = {
-    generated: {
-        label: 'Summaries',
-        color: 'var(--chart-2)',
-    },
-} satisfies ChartConfig;
-
-const weekLabel = (week: string) =>
-    new Date(week).toLocaleDateString('en', { month: 'short', day: 'numeric' });
-
 export default function AiDashboardWidget() {
+    const { t, locale } = useTranslation();
     const stats = usePage().props.aiStats as AiStats | null;
+
+    /** Distinct from the core charts: summaries are a different entity. */
+    const config = {
+        generated: {
+            label: t('Summaries'),
+            color: 'var(--chart-2)',
+        },
+    } satisfies ChartConfig;
+
+    const weekLabel = (week: string) =>
+        new Date(week).toLocaleDateString(locale, {
+            month: 'short',
+            day: 'numeric',
+        });
 
     if (!stats) {
         return null;
@@ -57,10 +62,13 @@ export default function AiDashboardWidget() {
             <CardHeader>
                 <CardTitle className={`flex items-center gap-2`}>
                     <SparklesIcon className={`size-4`} aria-hidden />
-                    AI summaries
+                    {t('AI summaries')}
                 </CardTitle>
                 <CardDescription>
-                    {stats.summarized} of {stats.bookmarks} bookmarks summarized
+                    {t(':summarized of :total bookmarks summarized', {
+                        summarized: stats.summarized,
+                        total: stats.bookmarks,
+                    })}
                 </CardDescription>
             </CardHeader>
             <CardContent className={`grid gap-6 lg:grid-cols-2`}>
@@ -70,7 +78,7 @@ export default function AiDashboardWidget() {
                             className={`mb-2 flex items-baseline justify-between`}
                         >
                             <span className={`text-sm text-muted-foreground`}>
-                                Coverage
+                                {t('Coverage')}
                             </span>
                             <span
                                 className={`text-2xl font-semibold tabular-nums`}
@@ -84,7 +92,7 @@ export default function AiDashboardWidget() {
                             aria-valuenow={coverage}
                             aria-valuemin={0}
                             aria-valuemax={100}
-                            aria-label={`Summary coverage`}
+                            aria-label={t('Summary coverage')}
                         >
                             <div
                                 className={`h-full rounded-full bg-[var(--chart-2)]`}
@@ -104,7 +112,9 @@ export default function AiDashboardWidget() {
                                 content={
                                     <ChartTooltipContent
                                         labelFormatter={(value) =>
-                                            `Week of ${weekLabel(String(value))}`
+                                            t('Week of :week', {
+                                                week: weekLabel(String(value)),
+                                            })
                                         }
                                         indicator={`line`}
                                     />
@@ -121,17 +131,19 @@ export default function AiDashboardWidget() {
                         </AreaChart>
                     </ChartContainer>
                     <p className={`-mt-2 text-xs text-muted-foreground`}>
-                        Generated per week, last {stats.weekly.length} weeks
+                        {t('Generated per week, last :weeks weeks', {
+                            weeks: stats.weekly.length,
+                        })}
                     </p>
                 </div>
 
                 <div>
                     <p className={`mb-2 text-sm text-muted-foreground`}>
-                        Latest summaries
+                        {t('Latest summaries')}
                     </p>
                     {stats.recent.length === 0 ? (
                         <p className={`text-sm text-muted-foreground`}>
-                            No summaries yet.
+                            {t('No summaries yet.')}
                         </p>
                     ) : (
                         <ul className={`divide-y`}>

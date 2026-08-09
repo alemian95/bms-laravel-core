@@ -6,10 +6,12 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useDebounce } from '@/hooks/use-debounce';
+import { useTranslation } from '@/hooks/use-translation';
 import categories from '@/routes/categories';
 import type { Category } from '@/types';
 
 export function CategoryListItem({ category }: { category: Category }) {
+    const { t } = useTranslation();
     const [isEditingName, setIsEditingName] = useState(false);
     const [newName, setNewName] = useState(category.name);
     const [color, setColor] = useState(category.color ?? '#000000');
@@ -59,10 +61,17 @@ export function CategoryListItem({ category }: { category: Category }) {
 
     const deleteCategory = () => {
         const warning = count
-            ? `\n${count} bookmark${count === 1 ? '' : 's'} will be left without a category.`
+            ? '\n' +
+              (count === 1
+                  ? t(':count bookmark will be left without a category.', {
+                        count,
+                    })
+                  : t(':count bookmarks will be left without a category.', {
+                        count,
+                    }))
             : '';
 
-        if (confirm(`Delete "${category.name}"?${warning}`)) {
+        if (confirm(t('Delete ":name"?', { name: category.name }) + warning)) {
             router.delete(categories.destroy(category.id), {
                 preserveScroll: true,
             });
@@ -75,7 +84,7 @@ export function CategoryListItem({ category }: { category: Category }) {
         >
             <label
                 className={`relative shrink-0 cursor-pointer`}
-                title={`Change color`}
+                title={t('Change color')}
             >
                 <span
                     className={`block size-5 rounded-full ring-1 ring-border ring-offset-2 ring-offset-background`}
@@ -85,7 +94,7 @@ export function CategoryListItem({ category }: { category: Category }) {
                     type={`color`}
                     value={color}
                     onChange={(e) => setColor(e.target.value)}
-                    aria-label={`Color of ${category.name}`}
+                    aria-label={t('Color of :name', { name: category.name })}
                     className={`absolute inset-0 size-full cursor-pointer opacity-0`}
                 />
             </label>
@@ -113,7 +122,7 @@ export function CategoryListItem({ category }: { category: Category }) {
                             size={`icon`}
                             className={`size-8 text-green-600`}
                             onClick={updateName}
-                            aria-label={`Save name`}
+                            aria-label={t('Save name')}
                         >
                             <CheckIcon className={`size-4`} />
                         </Button>
@@ -122,7 +131,7 @@ export function CategoryListItem({ category }: { category: Category }) {
                             size={`icon`}
                             className={`size-8`}
                             onClick={cancelEditing}
-                            aria-label={`Cancel renaming`}
+                            aria-label={t('Cancel renaming')}
                         >
                             <XIcon className={`size-4`} />
                         </Button>
@@ -131,7 +140,7 @@ export function CategoryListItem({ category }: { category: Category }) {
                     <button
                         type={`button`}
                         onClick={() => setIsEditingName(true)}
-                        title={`Rename`}
+                        title={t('Rename')}
                         className={`flex max-w-full min-w-0 items-center gap-2 text-left`}
                     >
                         <span className={`truncate font-medium`}>
@@ -150,14 +159,16 @@ export function CategoryListItem({ category }: { category: Category }) {
             </div>
 
             <Badge variant={`secondary`} className={`shrink-0 tabular-nums`}>
-                {count} bookmark{count === 1 ? '' : 's'}
+                {count === 1
+                    ? t(':count bookmark', { count })
+                    : t(':count bookmarks', { count })}
             </Badge>
             <Button
                 variant={`ghost`}
                 size={`icon`}
                 className={`size-8 text-muted-foreground hover:text-destructive`}
                 onClick={deleteCategory}
-                aria-label={`Delete ${category.name}`}
+                aria-label={t('Delete :name', { name: category.name })}
             >
                 <Trash2Icon className={`size-4`} />
             </Button>

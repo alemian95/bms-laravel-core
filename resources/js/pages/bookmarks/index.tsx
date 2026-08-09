@@ -1,4 +1,4 @@
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, Link, router, setLayoutProps } from '@inertiajs/react';
 import { SearchIcon, XIcon } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
@@ -7,6 +7,7 @@ import { ItemsPagination } from '@/components/items-pagination';
 import { NewBookmarkDialog } from '@/components/new-bookmark-dialog';
 import { Input } from '@/components/ui/input';
 import { useDebounce } from '@/hooks/use-debounce';
+import { useTranslation } from '@/hooks/use-translation';
 import bookmarks from '@/routes/bookmarks';
 import type { Bookmark, Category, Paginated } from '@/types';
 
@@ -25,6 +26,12 @@ export default function BookmarksIndex({
     q: string | null;
     highlights: Highlights;
 }) {
+    const { t } = useTranslation();
+
+    setLayoutProps({
+        breadcrumbs: [{ title: t('Bookmarks'), href: '' }],
+    });
+
     const items = paginatedBookmarks.data;
 
     const [query, setQuery] = useState<string>(q ?? '');
@@ -71,14 +78,14 @@ export default function BookmarksIndex({
 
     return (
         <>
-            <Head title={`Bookmarks`} />
+            <Head title={t('Bookmarks')} />
 
             <div className={`flex flex-col gap-6 lg:flex-row`}>
                 <aside className={`md:w-56 md:shrink-0`}>
                     <h2
                         className={`mb-3 text-sm font-semibold text-muted-foreground`}
                     >
-                        Categories
+                        {t('Categories')}
                     </h2>
                     <ul className={`flex flex-col gap-1`}>
                         <li>
@@ -86,7 +93,7 @@ export default function BookmarksIndex({
                                 href={bookmarks.index().url}
                                 className={`block rounded px-2 py-1 text-sm hover:bg-muted ${!activeCategory ? 'bg-muted font-medium' : ''}`}
                             >
-                                All bookmarks
+                                {t('All bookmarks')}
                             </Link>
                         </li>
                         {categories.map((category) => (
@@ -123,8 +130,8 @@ export default function BookmarksIndex({
                             {activeCategory
                                 ? (categories.find(
                                       (c) => c.slug === activeCategory,
-                                  )?.name ?? 'Bookmarks')
-                                : 'All bookmarks'}
+                                  )?.name ?? t('Bookmarks'))
+                                : t('All bookmarks')}
                         </h1>
                         <div className={`flex items-center gap-2`}>
                             <div
@@ -137,14 +144,14 @@ export default function BookmarksIndex({
                                     type={`search`}
                                     value={query}
                                     onChange={(e) => setQuery(e.target.value)}
-                                    placeholder={`Search bookmarks...`}
+                                    placeholder={t('Search bookmarks...')}
                                     className={`pl-8 ${query ? 'pr-8' : ''}`}
                                 />
                                 {query && (
                                     <button
                                         type={`button`}
                                         onClick={() => setQuery('')}
-                                        aria-label={`Clear search`}
+                                        aria-label={t('Clear search')}
                                         className={`absolute top-1/2 right-2 -translate-y-1/2 text-muted-foreground hover:text-foreground`}
                                     >
                                         <XIcon className={`size-4`} />
@@ -160,8 +167,12 @@ export default function BookmarksIndex({
                             className={`rounded-lg border border-dashed p-10 text-center text-muted-foreground`}
                         >
                             {q
-                                ? `No bookmarks match "${q}".`
-                                : `No bookmarks yet. Click "New Bookmark" to save your first link.`}
+                                ? t('No bookmarks match ":query".', {
+                                      query: q,
+                                  })
+                                : t(
+                                      'No bookmarks yet. Click "New Bookmark" to save your first link.',
+                                  )}
                         </div>
                     ) : (
                         <>
@@ -188,12 +199,3 @@ export default function BookmarksIndex({
         </>
     );
 }
-
-BookmarksIndex.layout = {
-    breadcrumbs: [
-        {
-            title: 'Bookmarks',
-            href: '', //bookmarks.index().url,
-        },
-    ],
-};

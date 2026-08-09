@@ -3,6 +3,7 @@ import { ArrowLeftIcon, LoaderCircleIcon, SparklesIcon } from 'lucide-react';
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
+import { useTranslation } from '@/hooks/use-translation';
 import ai from '@/routes/ai';
 import bookmarks from '@/routes/bookmarks';
 
@@ -30,6 +31,7 @@ export default function AiSummary({
     bookmark: SummaryBookmark;
     summary: string | null;
 }) {
+    const { t } = useTranslation();
     const [generating, setGenerating] = useState(false);
 
     const poll = usePoll(
@@ -58,13 +60,13 @@ export default function AiSummary({
 
     return (
         <div className={`mx-auto flex w-full max-w-3xl flex-col gap-6 p-6`}>
-            <Head title={`Summary`} />
+            <Head title={t('Summary')} />
 
             <Link
                 href={bookmarks.index().url}
                 className={`inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground`}
             >
-                <ArrowLeftIcon className={`size-3`} /> Back
+                <ArrowLeftIcon className={`size-3`} /> {t('Back')}
             </Link>
 
             <div className={`flex items-start justify-between gap-4`}>
@@ -98,7 +100,7 @@ export default function AiSummary({
                             ) : (
                                 <SparklesIcon className={`size-4`} />
                             )}
-                            {summary ? 'Regenerate' : 'Generate'}
+                            {summary ? t('Regenerate') : t('Generate')}
                         </Button>
                     )}
                 </Form>
@@ -112,8 +114,8 @@ export default function AiSummary({
                 >
                     <SparklesIcon className={`size-4`} />
                     {generating
-                        ? 'Generating the summary...'
-                        : 'No summary yet.'}
+                        ? t('Generating the summary...')
+                        : t('No summary yet.')}
                 </div>
             )}
         </div>

@@ -13,30 +13,36 @@ import {
     ChartTooltipContent,
 } from '@/components/ui/chart';
 import type { ChartConfig } from '@/components/ui/chart';
+import { useTranslation } from '@/hooks/use-translation';
 import type { WeeklySaves } from '@/types';
 
-/**
- * Single series, so no legend: the card title names the measure.
- */
-const config = {
-    saved: {
-        label: 'Saved',
-        color: 'var(--chart-1)',
-    },
-} satisfies ChartConfig;
-
-const weekLabel = (week: string) =>
-    new Date(week).toLocaleDateString('en', { month: 'short', day: 'numeric' });
-
 export function SavesOverTimeChart({ weekly }: { weekly: WeeklySaves[] }) {
+    const { t, locale } = useTranslation();
     const total = weekly.reduce((sum, point) => sum + point.saved, 0);
+
+    /** Single series, so no legend: the card title names the measure. */
+    const config = {
+        saved: {
+            label: t('Saved'),
+            color: 'var(--chart-1)',
+        },
+    } satisfies ChartConfig;
+
+    const weekLabel = (week: string) =>
+        new Date(week).toLocaleDateString(locale, {
+            month: 'short',
+            day: 'numeric',
+        });
 
     return (
         <Card>
             <CardHeader>
-                <CardTitle>Saves over time</CardTitle>
+                <CardTitle>{t('Saves over time')}</CardTitle>
                 <CardDescription>
-                    {total} bookmarks over the last {weekly.length} weeks
+                    {t(':total bookmarks over the last :weeks weeks', {
+                        total,
+                        weeks: weekly.length,
+                    })}
                 </CardDescription>
             </CardHeader>
             <CardContent>
@@ -86,7 +92,9 @@ export function SavesOverTimeChart({ weekly }: { weekly: WeeklySaves[] }) {
                             content={
                                 <ChartTooltipContent
                                     labelFormatter={(value) =>
-                                        `Week of ${weekLabel(String(value))}`
+                                        t('Week of :week', {
+                                            week: weekLabel(String(value)),
+                                        })
                                     }
                                     indicator={`line`}
                                 />
