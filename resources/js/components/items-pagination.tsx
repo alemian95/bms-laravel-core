@@ -4,6 +4,8 @@ import {
     PaginationContent,
     PaginationItem,
     PaginationLink,
+    PaginationNext,
+    PaginationPrevious,
 } from '@/components/ui/pagination';
 import { useTranslation } from '@/hooks/use-translation';
 import type { Paginated } from '@/types';
@@ -32,16 +34,16 @@ export function ItemsPagination({
                             links are built here instead. */}
                         {pagination.prev_page_url && (
                             <PaginationItem>
-                                <PaginationLink
+                                <PaginationPrevious
                                     href={pagination.prev_page_url}
                                     aria-label={t('Go to previous page')}
-                                    className="gap-1 px-2.5 sm:pl-2.5"
+                                    className="aspect gap-1 px-2.5 sm:pl-2.5"
                                 >
                                     <ChevronLeftIcon />
                                     <span className="hidden sm:block">
                                         {t('Previous')}
                                     </span>
-                                </PaginationLink>
+                                </PaginationPrevious>
                             </PaginationItem>
                         )}
                         {pagination.links.map((link, index) => {
@@ -66,7 +68,7 @@ export function ItemsPagination({
                         })}
                         {pagination.next_page_url && (
                             <PaginationItem>
-                                <PaginationLink
+                                <PaginationNext
                                     href={pagination.next_page_url}
                                     aria-label={t('Go to next page')}
                                     className="gap-1 px-2.5 sm:pr-2.5"
@@ -75,7 +77,7 @@ export function ItemsPagination({
                                         {t('Next')}
                                     </span>
                                     <ChevronRightIcon />
-                                </PaginationLink>
+                                </PaginationNext>
                             </PaginationItem>
                         )}
                     </PaginationContent>
