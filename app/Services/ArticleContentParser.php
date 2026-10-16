@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use fivefilters\Readability\Configuration;
 use fivefilters\Readability\ParseException;
 use fivefilters\Readability\Readability;
 use HTMLPurifier;
@@ -27,17 +26,13 @@ class ArticleContentParser
             return ['content_html' => null, 'content_text' => null];
         }
 
-        $readability = new Readability(new Configuration(['originalURL' => $url]));
-
         try {
-            if (! $readability->parse($response->body())) {
-                return ['content_html' => null, 'content_text' => null];
-            }
+            $article = (new Readability(originalURL: $url))->parse($response->body());
         } catch (ParseException) {
             return ['content_html' => null, 'content_text' => null];
         }
 
-        $rawHtml = $readability->getContent();
+        $rawHtml = $article->content;
 
         if ($rawHtml === null || trim($rawHtml) === '') {
             return ['content_html' => null, 'content_text' => null];
