@@ -4,6 +4,7 @@ import { useEffect, useRef } from 'react';
 
 import { BookmarkHeader } from '@/components/bookmark-header';
 import { PluginSlot } from '@/components/plugin-slot';
+import { Skeleton } from '@/components/ui/skeleton';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useScrollPercentage } from '@/hooks/use-scroll-percentage';
 import { useTranslation } from '@/hooks/use-translation';
@@ -128,9 +129,9 @@ export default function BookmarkRead({ bookmark }: { bookmark: Bookmark }) {
                 ) : isPending ? (
                     <div className={`flex flex-col gap-3`}>
                         {Array.from({ length: 8 }).map((_, i) => (
-                            <div
+                            <Skeleton
                                 key={i}
-                                className={`h-4 animate-pulse rounded bg-muted`}
+                                className={`h-4`}
                                 style={{ width: `${85 - (i % 4) * 10}%` }}
                             />
                         ))}

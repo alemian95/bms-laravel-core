@@ -15,6 +15,7 @@ import {
     ChartTooltipContent,
 } from '@/components/ui/chart';
 import type { ChartConfig } from '@/components/ui/chart';
+import { Progress } from '@/components/ui/progress';
 import { useTranslation } from '@/hooks/use-translation';
 import ai from '@/routes/ai';
 
@@ -86,19 +87,11 @@ export default function AiDashboardWidget() {
                                 {coverage}%
                             </span>
                         </div>
-                        <div
-                            className={`h-2 overflow-hidden rounded-full bg-muted`}
-                            role={`meter`}
-                            aria-valuenow={coverage}
-                            aria-valuemin={0}
-                            aria-valuemax={100}
+                        <Progress
+                            value={coverage}
+                            className={`bg-muted [&>div]:bg-[var(--chart-2)]`}
                             aria-label={t('Summary coverage')}
-                        >
-                            <div
-                                className={`h-full rounded-full bg-[var(--chart-2)]`}
-                                style={{ width: `${coverage}%` }}
-                            />
-                        </div>
+                        />
                     </div>
 
                     <ChartContainer config={config} className={`h-20 w-full`}>

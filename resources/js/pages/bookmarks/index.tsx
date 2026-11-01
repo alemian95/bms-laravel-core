@@ -5,7 +5,12 @@ import { useEffect, useRef, useState } from 'react';
 import { BookmarkCard } from '@/components/bookmark-card';
 import { ItemsPagination } from '@/components/items-pagination';
 import { NewBookmarkDialog } from '@/components/new-bookmark-dialog';
-import { Input } from '@/components/ui/input';
+import {
+    InputGroup,
+    InputGroupAddon,
+    InputGroupButton,
+    InputGroupInput,
+} from '@/components/ui/input-group';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useTranslation } from '@/hooks/use-translation';
 import bookmarks from '@/routes/bookmarks';
@@ -134,30 +139,30 @@ export default function BookmarksIndex({
                                 : t('All bookmarks')}
                         </h1>
                         <div className={`flex items-center gap-2`}>
-                            <div
-                                className={`relative flex-1 sm:w-72 sm:flex-none`}
+                            <InputGroup
+                                className={`flex-1 sm:w-72 sm:flex-none`}
                             >
-                                <SearchIcon
-                                    className={`pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground`}
-                                />
-                                <Input
+                                <InputGroupAddon>
+                                    <SearchIcon />
+                                </InputGroupAddon>
+                                <InputGroupInput
                                     type={`search`}
                                     value={query}
                                     onChange={(e) => setQuery(e.target.value)}
                                     placeholder={t('Search bookmarks...')}
-                                    className={`pl-8 ${query ? 'pr-8' : ''}`}
                                 />
                                 {query && (
-                                    <button
-                                        type={`button`}
-                                        onClick={() => setQuery('')}
-                                        aria-label={t('Clear search')}
-                                        className={`absolute top-1/2 right-2 -translate-y-1/2 text-muted-foreground hover:text-foreground`}
-                                    >
-                                        <XIcon className={`size-4`} />
-                                    </button>
+                                    <InputGroupAddon align={`inline-end`}>
+                                        <InputGroupButton
+                                            size={`icon-xs`}
+                                            onClick={() => setQuery('')}
+                                            aria-label={t('Clear search')}
+                                        >
+                                            <XIcon />
+                                        </InputGroupButton>
+                                    </InputGroupAddon>
                                 )}
-                            </div>
+                            </InputGroup>
                             <NewBookmarkDialog categories={categories} />
                         </div>
                     </div>
