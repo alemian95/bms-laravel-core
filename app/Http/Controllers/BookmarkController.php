@@ -44,10 +44,6 @@ class BookmarkController extends Controller
         } catch (DuplicateBookmarkException) {
             return redirect()->route('bookmarks.index')
                 ->withErrors(['url' => 'You have already saved this URL.']);
-        } catch (\Exception $e) {
-            Inertia::flash('toast', ['type' => 'error', 'message' => $e->getMessage()]);
-
-            return redirect()->route('bookmarks.index');
         }
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Bookmark saved, extracting metadata...']);
@@ -80,13 +76,7 @@ class BookmarkController extends Controller
     {
         Gate::authorize('delete', $bookmark);
 
-        try {
-            $action->handle($bookmark);
-        } catch (\Exception $e) {
-            Inertia::flash('toast', ['type' => 'error', 'message' => $e->getMessage()]);
-
-            return redirect()->route('bookmarks.index');
-        }
+        $action->handle($bookmark);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Bookmark deleted successfully']);
 

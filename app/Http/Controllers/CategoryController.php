@@ -23,13 +23,7 @@ class CategoryController extends Controller
 
     public function store(StoreCategoryRequest $request, CreateCategory $action)
     {
-        try {
-            $action->handle($request->toData());
-        } catch (\Exception $e) {
-            Inertia::flash('toast', ['type' => 'error', 'message' => $e->getMessage()]);
-
-            return redirect()->route('categories.index');
-        }
+        $action->handle($request->toData());
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Category created successfully']);
 
@@ -40,13 +34,7 @@ class CategoryController extends Controller
     {
         Gate::authorize('update', $category);
 
-        try {
-            $action->handle($request->toData($category));
-        } catch (\Exception $e) {
-            Inertia::flash('toast', ['type' => 'error', 'message' => $e->getMessage()]);
-
-            return redirect()->back();
-        }
+        $action->handle($request->toData($category));
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Category updated successfully']);
 
@@ -57,13 +45,7 @@ class CategoryController extends Controller
     {
         Gate::authorize('delete', $category);
 
-        try {
-            $action->handle($category);
-        } catch (\Exception $e) {
-            Inertia::flash('toast', ['type' => 'error', 'message' => $e->getMessage()]);
-
-            return redirect()->route('categories.index');
-        }
+        $action->handle($category);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Category deleted successfully']);
 
