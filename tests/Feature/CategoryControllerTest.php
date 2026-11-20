@@ -136,3 +136,42 @@ test('updates only category name and slug', function () {
         'color' => '#000000',
     ]);
 });
+
+test('index lists only the user categories', function () {
+    $user = User::factory()->create();
+    $other = User::factory()->create();
+    Category::factory()->count(2)->create(['user_id' => $user->id]);
+    Category::factory()->count(3)->create(['user_id' => $other->id]);
+
+    $response = $this->actingAs($user)->get(route('categories.index'));
+
+    $response->assertOk();
+    $response->assertInertia(fn ($page) => $page
+        ->component('categories/index')
+        ->has('categories', 2)
+    );
+});
+
+test('user cannot update another user category', function () {
+    $user = User::factory()->create();
+    $other = User::factory()->create();
+    $category = Category::factory()->create(['user_id' => $other->id, 'name' => 'Original Name']);
+
+    $response = $this->actingAs($user)->patch(route('categories.update', $category), [
+        'name' => 'Hijacked',
+    ]);
+
+    $response->assertForbidden();
+    $this->assertDatabaseHas('categories', ['id' => $category->id, 'name' => 'Original Name']);
+});
+
+test('user cannot delete another user category', function () {
+    $user = User::factory()->create();
+    $other = User::factory()->create();
+    $category = Category::factory()->create(['user_id' => $other->id]);
+
+    $response = $this->actingAs($user)->delete(route('categories.destroy', $category));
+
+    $response->assertForbidden();
+    $this->assertDatabaseHas('categories', ['id' => $category->id]);
+});

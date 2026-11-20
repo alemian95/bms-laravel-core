@@ -13,6 +13,12 @@ import {
     DialogTitle,
 } from '@/components/ui/dialog';
 import {
+    InputGroup,
+    InputGroupAddon,
+    InputGroupButton,
+    InputGroupInput,
+} from '@/components/ui/input-group';
+import {
     InputOTP,
     InputOTPGroup,
     InputOTPSlot,
@@ -111,28 +117,28 @@ function TwoFactorSetupStep({
                     </div>
 
                     <div className="flex w-full space-x-2">
-                        <div className="flex w-full items-stretch overflow-hidden rounded-xl border border-border">
-                            {!manualSetupKey ? (
-                                <div className="flex h-full w-full items-center justify-center bg-muted p-3">
-                                    <Spinner />
-                                </div>
-                            ) : (
-                                <>
-                                    <input
-                                        type="text"
-                                        readOnly
-                                        value={manualSetupKey}
-                                        className="h-full w-full bg-background p-3 text-foreground outline-none"
-                                    />
-                                    <button
+                        {!manualSetupKey ? (
+                            <div className="flex w-full items-center justify-center rounded-md border bg-muted p-3">
+                                <Spinner />
+                            </div>
+                        ) : (
+                            <InputGroup>
+                                <InputGroupInput
+                                    type="text"
+                                    readOnly
+                                    value={manualSetupKey}
+                                />
+                                <InputGroupAddon align="inline-end">
+                                    <InputGroupButton
+                                        size="icon-xs"
                                         onClick={() => copy(manualSetupKey)}
-                                        className="border-l border-border px-3 hover:bg-muted"
+                                        aria-label={t('Copy')}
                                     >
-                                        <IconComponent className="w-4" />
-                                    </button>
-                                </>
-                            )}
-                        </div>
+                                        <IconComponent />
+                                    </InputGroupButton>
+                                </InputGroupAddon>
+                            </InputGroup>
+                        )}
                     </div>
                 </>
             )}

@@ -8,14 +8,16 @@ use App\Actions\Categories\UpdateCategory;
 use App\Http\Requests\Categories\StoreCategoryRequest;
 use App\Http\Requests\Categories\UpdateCategoryRequest;
 use App\Models\Category;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 
 class CategoryController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         return Inertia::render('categories/index', [
-            'categories' => Category::withCount('bookmarks')->orderBy('name')->get(),
+            'categories' => $request->user()->categories()->withCount('bookmarks')->orderBy('name')->get(),
         ]);
     }
 
@@ -36,6 +38,8 @@ class CategoryController extends Controller
 
     public function update(UpdateCategoryRequest $request, Category $category, UpdateCategory $action)
     {
+        Gate::authorize('update', $category);
+
         try {
             $action->handle($request->toData($category));
         } catch (\Exception $e) {
@@ -51,6 +55,8 @@ class CategoryController extends Controller
 
     public function destroy(Category $category, DeleteCategory $action)
     {
+        Gate::authorize('delete', $category);
+
         try {
             $action->handle($category);
         } catch (\Exception $e) {

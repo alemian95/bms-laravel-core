@@ -7,6 +7,8 @@ import {
 } from 'lucide-react';
 
 import { PluginSlot } from '@/components/plugin-slot';
+import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
 import { useTranslation } from '@/hooks/use-translation';
 import bookmarks from '@/routes/bookmarks';
 import type { Bookmark } from '@/types';
@@ -38,7 +40,7 @@ export function BookmarkCard({
                 className={`relative aspect-[16/9] w-full overflow-hidden bg-muted`}
             >
                 {isPending ? (
-                    <div className={`size-full animate-pulse bg-muted`} />
+                    <Skeleton className={`size-full rounded-none`} />
                 ) : bookmark.thumbnail_url ? (
                     <img
                         src={bookmark.thumbnail_url}
@@ -84,12 +86,8 @@ export function BookmarkCard({
             <div className={`flex flex-1 flex-col gap-2 p-4`}>
                 {isPending ? (
                     <>
-                        <div
-                            className={`h-4 w-3/4 animate-pulse rounded bg-muted`}
-                        />
-                        <div
-                            className={`h-3 w-1/2 animate-pulse rounded bg-muted`}
-                        />
+                        <Skeleton className={`h-4 w-3/4`} />
+                        <Skeleton className={`h-3 w-1/2`} />
                     </>
                 ) : (
                     <>
@@ -162,13 +160,15 @@ export function BookmarkCard({
                             bookmark={bookmark}
                         />
                     </div>
-                    <button
+                    <Button
+                        variant={`ghost`}
+                        size={`icon`}
                         onClick={handleDelete}
-                        className={`cursor-pointer text-muted-foreground hover:text-destructive`}
+                        className={`size-8 text-muted-foreground hover:text-destructive`}
                         aria-label={t('Delete bookmark')}
                     >
                         <Trash2Icon className={`size-4`} />
-                    </button>
+                    </Button>
                 </div>
             </div>
         </article>

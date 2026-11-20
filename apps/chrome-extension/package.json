@@ -9,11 +9,11 @@
         "build:zip": "vite build && cd dist && zip -r ../bms-chrome-extension.zip ./*"
     },
     "devDependencies": {
-        "@types/chrome": "^0.0.291",
-        "@types/webextension-polyfill": "^0.12.3",
-        "typescript": "^5.7.2",
-        "vite": "^7.0.0",
-        "vite-plugin-web-extension": "^4.4.4"
+        "@types/chrome": "^0.3.5",
+        "@types/webextension-polyfill": "^0.12.6",
+        "typescript": "^6.0.3",
+        "vite": "^8.3.4",
+        "vite-plugin-web-extension": "^4.5.1"
     },
     "dependencies": {
         "webextension-polyfill": "^0.12.0"

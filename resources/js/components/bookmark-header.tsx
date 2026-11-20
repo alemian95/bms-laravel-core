@@ -1,5 +1,6 @@
 import { Link } from '@inertiajs/react';
 import { ArrowLeftIcon, ExternalLinkIcon } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
 import { useTranslation } from '@/hooks/use-translation';
 import bookmarks from '@/routes/bookmarks';
 import type { Bookmark } from '@/types';
@@ -25,12 +26,8 @@ export function BookmarkHeader({
             <header className={`mb-8 border-b pb-6`}>
                 {isPending ? (
                     <>
-                        <div
-                            className={`mb-3 h-8 w-3/4 animate-pulse rounded bg-muted`}
-                        />
-                        <div
-                            className={`h-4 w-1/3 animate-pulse rounded bg-muted`}
-                        />
+                        <Skeleton className={`mb-3 h-8 w-3/4`} />
+                        <Skeleton className={`h-4 w-1/3`} />
                     </>
                 ) : (
                     <>

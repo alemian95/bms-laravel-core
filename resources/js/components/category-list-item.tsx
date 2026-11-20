@@ -137,11 +137,13 @@ export function CategoryListItem({ category }: { category: Category }) {
                         </Button>
                     </div>
                 ) : (
-                    <button
+                    <Button
                         type={`button`}
+                        variant={`ghost`}
+                        size={`sm`}
                         onClick={() => setIsEditingName(true)}
                         title={t('Rename')}
-                        className={`flex max-w-full min-w-0 items-center gap-2 text-left`}
+                        className={`-ml-2 max-w-full min-w-0 justify-start`}
                     >
                         <span className={`truncate font-medium`}>
                             {category.name}
@@ -149,7 +151,7 @@ export function CategoryListItem({ category }: { category: Category }) {
                         <PencilIcon
                             className={`size-3.5 shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100`}
                         />
-                    </button>
+                    </Button>
                 )}
                 <p
                     className={`truncate font-mono text-xs text-muted-foreground`}

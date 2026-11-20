@@ -7,6 +7,15 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from '@/components/ui/table';
 import { useTranslation } from '@/hooks/use-translation';
 import bookmarks from '@/routes/bookmarks';
 import type { ContinueReadingItem } from '@/types';
@@ -34,102 +43,82 @@ export function ContinueReadingTable({
                         )}
                     </p>
                 ) : (
-                    <div className={`overflow-x-auto`}>
-                        <table className={`w-full text-sm`}>
-                            <thead>
-                                <tr
-                                    className={`border-b text-left text-xs text-muted-foreground`}
-                                >
-                                    <th className={`pb-2 font-medium`}>
-                                        {t('Article')}
-                                    </th>
-                                    <th
-                                        className={`hidden pb-2 font-medium sm:table-cell`}
-                                    >
-                                        {t('Category')}
-                                    </th>
-                                    <th
-                                        className={`w-32 pb-2 text-right font-medium`}
-                                    >
-                                        {t('Progress')}
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {items.map((item) => (
-                                    <tr
-                                        key={item.id}
-                                        className={`border-b last:border-0`}
-                                    >
-                                        <td className={`py-3 pr-4`}>
-                                            <Link
-                                                href={
-                                                    bookmarks.read(item.id).url
-                                                }
-                                                className={`line-clamp-1 font-medium hover:underline`}
-                                            >
-                                                {item.title}
-                                            </Link>
-                                            {item.domain ? (
-                                                <span
-                                                    className={`block text-xs text-muted-foreground`}
-                                                >
-                                                    {item.domain}
-                                                </span>
-                                            ) : null}
-                                        </td>
-                                        <td
-                                            className={`hidden py-3 pr-4 sm:table-cell`}
+                    <Table>
+                        <TableHeader>
+                            <TableRow className={`text-xs`}>
+                                <TableHead>{t('Article')}</TableHead>
+                                <TableHead className={`hidden sm:table-cell`}>
+                                    {t('Category')}
+                                </TableHead>
+                                <TableHead className={`w-32 text-right`}>
+                                    {t('Progress')}
+                                </TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {items.map((item) => (
+                                <TableRow key={item.id}>
+                                    <TableCell className={`whitespace-normal`}>
+                                        <Link
+                                            href={bookmarks.read(item.id).url}
+                                            className={`line-clamp-1 font-medium hover:underline`}
                                         >
-                                            {item.category ? (
-                                                <span
-                                                    className={`inline-flex items-center gap-1.5 text-muted-foreground`}
-                                                >
-                                                    <span
-                                                        className={`size-2 shrink-0 rounded-full`}
-                                                        style={{
-                                                            backgroundColor:
-                                                                item.categoryColor ??
-                                                                'var(--muted-foreground)',
-                                                        }}
-                                                        aria-hidden
-                                                    />
-                                                    {item.category}
-                                                </span>
-                                            ) : (
-                                                <span
-                                                    className={`text-muted-foreground`}
-                                                >
-                                                    —
-                                                </span>
-                                            )}
-                                        </td>
-                                        <td className={`py-3`}>
-                                            <div
-                                                className={`flex items-center justify-end gap-2`}
+                                            {item.title}
+                                        </Link>
+                                        {item.domain ? (
+                                            <span
+                                                className={`block text-xs text-muted-foreground`}
                                             >
-                                                <div
-                                                    className={`h-1.5 w-16 overflow-hidden rounded-full bg-muted`}
-                                                >
-                                                    <div
-                                                        className={`h-full rounded-full bg-[var(--chart-1)]`}
-                                                        style={{
-                                                            width: `${item.progress}%`,
-                                                        }}
-                                                    />
-                                                </div>
+                                                {item.domain}
+                                            </span>
+                                        ) : null}
+                                    </TableCell>
+                                    <TableCell
+                                        className={`hidden sm:table-cell`}
+                                    >
+                                        {item.category ? (
+                                            <span
+                                                className={`inline-flex items-center gap-1.5 text-muted-foreground`}
+                                            >
                                                 <span
-                                                    className={`w-9 text-right text-muted-foreground tabular-nums`}
-                                                >
-                                                    {item.progress}%
-                                                </span>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
+                                                    className={`size-2 shrink-0 rounded-full`}
+                                                    style={{
+                                                        backgroundColor:
+                                                            item.categoryColor ??
+                                                            'var(--muted-foreground)',
+                                                    }}
+                                                    aria-hidden
+                                                />
+                                                {item.category}
+                                            </span>
+                                        ) : (
+                                            <span
+                                                className={`text-muted-foreground`}
+                                            >
+                                                —
+                                            </span>
+                                        )}
+                                    </TableCell>
+                                    <TableCell>
+                                        <div
+                                            className={`flex items-center justify-end gap-2`}
+                                        >
+                                            <Progress
+                                                value={item.progress}
+                                                className={`h-1.5 w-16 bg-muted [&>div]:bg-[var(--chart-1)]`}
+                                                aria-label={t('Progress')}
+                                            />
+                                            <span
+                                                className={`w-9 text-right text-muted-foreground tabular-nums`}
+                                            >
+                                                {item.progress}%
+                                            </span>
+                                        </div>
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
                 )}
             </CardContent>
         </Card>

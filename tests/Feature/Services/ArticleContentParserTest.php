@@ -57,3 +57,16 @@ test('returns nulls on empty body', function () {
     expect($result['content_html'])->toBeNull()
         ->and($result['content_text'])->toBeNull();
 });
+
+test('returns nulls when the page has no readable content', function () {
+    Http::fake([
+        '*' => Http::response('<html><head><title>Empty</title></head><body></body></html>', 200),
+    ]);
+
+    $result = (new ArticleContentParser)->parse('https://example.com/no-content');
+
+    expect($result)->toBe([
+        'content_html' => null,
+        'content_text' => null,
+    ]);
+});
