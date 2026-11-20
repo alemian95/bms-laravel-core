@@ -4,6 +4,7 @@ namespace App\Http\Requests\Api\V1;
 
 use App\Data\Bookmarks\ListBookmarksFilters;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class IndexBookmarksRequest extends FormRequest
 {
@@ -13,13 +14,17 @@ class IndexBookmarksRequest extends FormRequest
     }
 
     /**
-     * @return array<string, array<int, string|int>>
+     * @return array<string, array<int, mixed>>
      */
     public function rules(): array
     {
         return [
             'q' => ['nullable', 'string', 'max:200'],
-            'category_id' => ['nullable', 'integer', 'exists:categories,id'],
+            'category_id' => [
+                'nullable',
+                'integer',
+                Rule::exists('categories', 'id')->where('user_id', $this->user()->id),
+            ],
             'page' => ['nullable', 'integer', 'min:1'],
             'per_page' => ['nullable', 'integer', 'min:1', 'max:50'],
         ];

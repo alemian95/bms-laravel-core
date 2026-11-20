@@ -30,6 +30,16 @@ class BookmarkLister
             default => null,
         };
 
+        $requestsCategory = $filters->categoryId !== null || $filters->categorySlug !== null;
+
+        if ($requestsCategory && $activeCategory === null) {
+            return [
+                'paginator' => new LengthAwarePaginator([], 0, $filters->perPage, $filters->page, ['path' => $filters->path]),
+                'highlights' => [],
+                'activeCategory' => null,
+            ];
+        }
+
         $query = trim((string) ($filters->query ?? ''));
 
         if ($query !== '') {
