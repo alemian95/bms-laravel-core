@@ -68,3 +68,14 @@ it('rejects tokens without bookmarks:read ability', function () {
 
     $this->getJson('/api/v1/bookmarks')->assertForbidden();
 });
+
+it('rejects a category_id owned by another user', function () {
+    $user = User::factory()->create();
+    $foreign = Category::factory()->create();
+    Bookmark::factory()->for($user)->create();
+    Sanctum::actingAs($user, ['bookmarks:read']);
+
+    $this->getJson('/api/v1/bookmarks?category_id='.$foreign->id)
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors('category_id');
+});

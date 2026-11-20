@@ -41,7 +41,7 @@ export interface Bookmark {
     category?: Category | null;
 }
 
-export type BookmarkStatus = 'pending' | 'parsed' | 'failed';
+export type BookmarkStatus = 'pending' | 'parsed' | 'content_failed' | 'failed';
 
 export interface Category {
     id: number;

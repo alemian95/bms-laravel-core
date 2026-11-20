@@ -177,6 +177,19 @@ test('index filters bookmarks by category slug', function () {
     );
 });
 
+test('index returns no bookmarks for an unknown category slug', function () {
+    $user = User::factory()->create();
+    Bookmark::factory()->for($user)->count(2)->create();
+    $foreign = Category::factory()->create(['slug' => 'foreign']);
+
+    $response = $this->actingAs($user)->get(route('bookmarks.index', ['category' => $foreign->slug]));
+
+    $response->assertInertia(fn ($page) => $page
+        ->where('activeCategory', null)
+        ->has('bookmarks.data', 0)
+    );
+});
+
 test('user can delete own bookmark', function () {
     $user = User::factory()->create();
     $bookmark = Bookmark::factory()->for($user)->create();

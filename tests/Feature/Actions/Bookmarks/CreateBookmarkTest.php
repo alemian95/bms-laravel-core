@@ -10,6 +10,7 @@ use App\Models\Bookmark;
 use App\Models\Category;
 use App\Models\User;
 use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\DB;
 
 it('creates a bookmark with pending status and dispatches job chain', function () {
     Bus::fake();
@@ -89,4 +90,23 @@ it('treats fragmented duplicate as duplicate after normalization', function () {
     expect(fn () => app(CreateBookmark::class)->handle(
         new CreateBookmarkData(user: $user, url: 'https://example.com/dup#section'),
     ))->toThrow(DuplicateBookmarkException::class);
+});
+
+it('throws DuplicateBookmarkException when a concurrent request saves the url first', function () {
+    Bus::fake();
+    $user = User::factory()->create();
+    $url = 'https://example.com/race';
+
+    // Simulates the concurrent insert landing between the duplicate check and the create.
+    Bookmark::creating(fn () => DB::table('bookmarks')->insert([
+        'user_id' => $user->id,
+        'url' => $url,
+        'status' => 'pending',
+    ]));
+
+    expect(fn () => app(CreateBookmark::class)->handle(
+        new CreateBookmarkData(user: $user, url: $url),
+    ))->toThrow(DuplicateBookmarkException::class);
+
+    Bus::assertNothingDispatched();
 });
