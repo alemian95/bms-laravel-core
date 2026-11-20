@@ -9,6 +9,7 @@ use App\Jobs\ExtractBookmarkMetadataJob;
 use App\Jobs\ParseArticleContentJob;
 use App\Models\Bookmark;
 use App\Services\Bookmarks\BookmarkUrlNormalizer;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\Bus;
 
 final class CreateBookmark
@@ -37,12 +38,17 @@ final class CreateBookmark
             throw new DuplicateBookmarkException($url);
         }
 
-        $bookmark = Bookmark::create([
-            'user_id' => $user->id,
-            'category_id' => $input->categoryId,
-            'url' => $url,
-            'status' => 'pending',
-        ]);
+        try {
+            $bookmark = Bookmark::create([
+                'user_id' => $user->id,
+                'category_id' => $input->categoryId,
+                'url' => $url,
+                'status' => 'pending',
+            ]);
+        } catch (UniqueConstraintViolationException) {
+            // A concurrent request saved the same URL after the check above.
+            throw new DuplicateBookmarkException($url);
+        }
 
         $chain = [
             new ExtractBookmarkMetadataJob($bookmark),
