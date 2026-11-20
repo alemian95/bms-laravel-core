@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api\V1\Auth;
 
 use App\Actions\Auth\AuthenticateApiUser;
 use App\Exceptions\Auth\InvalidApiCredentialsException;
+use App\Exceptions\Auth\InvalidTwoFactorCodeException;
+use App\Exceptions\Auth\TwoFactorCodeRequiredException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\Auth\LoginRequest;
 use Illuminate\Http\JsonResponse;
@@ -16,6 +18,10 @@ class LoginController extends Controller
             $token = $action->handle($request->toData());
         } catch (InvalidApiCredentialsException $e) {
             return response()->json(['message' => $e->getMessage()], 401);
+        } catch (TwoFactorCodeRequiredException $e) {
+            return response()->json(['message' => $e->getMessage(), 'two_factor_required' => true], 422);
+        } catch (InvalidTwoFactorCodeException $e) {
+            return response()->json(['message' => $e->getMessage()], 422);
         }
 
         return response()->json(['token' => $token->plainTextToken]);

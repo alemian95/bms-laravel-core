@@ -21,6 +21,8 @@ class LoginRequest extends FormRequest
             'email' => ['required', 'email'],
             'password' => ['required', 'string'],
             'device_name' => ['required', 'string', 'max:255'],
+            'code' => ['nullable', 'string'],
+            'recovery_code' => ['nullable', 'string'],
         ];
     }
 
@@ -30,6 +32,8 @@ class LoginRequest extends FormRequest
             email: $this->string('email')->toString(),
             password: $this->string('password')->toString(),
             deviceName: $this->string('device_name')->toString(),
+            code: $this->filled('code') ? $this->string('code')->toString() : null,
+            recoveryCode: $this->filled('recovery_code') ? $this->string('recovery_code')->toString() : null,
         );
     }
 }

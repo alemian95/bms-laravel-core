@@ -72,14 +72,19 @@ Separato da `show` perché `content_html` è pesante e non deve mai entrare nel 
 della lista.
 
 Tutto il resto esiste già e non va toccato: `POST /api/v1/login` (restituisce un token
-con abilities `['*']`), `GET /api/v1/bookmarks` (paginato, con ricerca Scout via `q` e
+con le abilities del preset `TokenPreset::MobileApp`; vedi §3 per il 2FA), `GET /api/v1/bookmarks` (paginato, con ricerca Scout via `q` e
 filtro `category_id`), `GET /api/v1/categories`, `POST /api/v1/bookmarks`,
 `PATCH /api/v1/bookmarks/{id}/progress`, `DELETE /api/v1/bookmarks/{id}`.
 
 ## 3. Auth
 
 Login email/password → `POST /api/v1/login` con `device_name` = nome del dispositivo →
-token salvato in `flutter_secure_storage`. Wrapper HTTP che su `401` cancella il token e
+token salvato in `flutter_secure_storage`.
+
+Se l'utente ha il 2FA attivo, la prima chiamata risponde `422` con
+`two_factor_required: true` e nessun token: l'app mostra la schermata del codice e ripete
+la chiamata aggiungendo `code` (TOTP) oppure `recovery_code`. Un codice errato risponde
+`422` senza `two_factor_required`. Wrapper HTTP che su `401` cancella il token e
 rimanda al login. Logout → `POST /api/v1/logout`.
 
 ## 4. Share intent

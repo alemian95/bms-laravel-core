@@ -8,5 +8,7 @@ final readonly class LoginData
         public string $email,
         public string $password,
         public string $deviceName,
+        public ?string $code = null,
+        public ?string $recoveryCode = null,
     ) {}
 }

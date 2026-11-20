@@ -162,7 +162,7 @@ L'accesso è regolato dal Gate `viewApiDocs` definito in `AppServiceProvider`. P
 4. Incolla il token nel campo `bearerAuth` e conferma.
 5. Espandi qualsiasi endpoint, clicca **"Try it out"**, compila i parametri e premi **"Execute"** per inviare la richiesta reale: la UI userà il Bearer token per tutte le rotte sotto `auth:sanctum`.
 
-L'endpoint `POST /api/v1/login` accetta `{ email, password, device_name }` e restituisce un token di login (separato dai PAT generati dalla dashboard) — utile per testare il flusso di autenticazione mobile.
+L'endpoint `POST /api/v1/login` accetta `{ email, password, device_name }` (più `code` o `recovery_code` se l'utente ha il 2FA attivo) e restituisce un token di login con le abilities del preset Mobile App (separato dai PAT generati dalla dashboard) — utile per testare il flusso di autenticazione mobile.
 
 ### Aggiornamento dello spec
 
