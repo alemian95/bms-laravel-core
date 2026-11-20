@@ -45,7 +45,7 @@ test('parses article content and stores clean html plus plain text', function ()
     );
 });
 
-test('stores nulls when parser returns nulls and does not touch status', function () {
+test('marks the content as failed when the parser returns no content', function () {
     $user = User::factory()->create();
     $bookmark = Bookmark::factory()->for($user)->create([
         'status' => 'parsed',
@@ -61,6 +61,14 @@ test('stores nulls when parser returns nulls and does not touch status', functio
 
     (new ParseArticleContentJob($bookmark))->handle($parser);
 
-    expect($bookmark->fresh()->status)->toBe('parsed')
+    expect($bookmark->fresh()->status)->toBe('content_failed')
         ->and($bookmark->fresh()->content_html)->toBeNull();
+});
+
+test('marks the content as failed when the job fails', function () {
+    $bookmark = Bookmark::factory()->create(['status' => 'parsed', 'content_html' => null]);
+
+    (new ParseArticleContentJob($bookmark))->failed(new RuntimeException('timeout'));
+
+    expect($bookmark->fresh()->status)->toBe('content_failed');
 });

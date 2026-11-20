@@ -7,6 +7,7 @@ use App\Models\Bookmark;
 use App\Services\ArticleContentParser;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
+use Throwable;
 
 class ParseArticleContentJob implements ShouldQueue
 {
@@ -22,7 +23,17 @@ class ParseArticleContentJob implements ShouldQueue
     public function handle(ArticleContentParser $parser): void
     {
         $content = $parser->parse($this->bookmark->url);
-        $this->bookmark->update($content);
+
+        $this->bookmark->update([
+            ...$content,
+            ...($content['content_html'] === null ? ['status' => 'content_failed'] : []),
+        ]);
+
         ContentParsedEvent::dispatch($this->bookmark);
+    }
+
+    public function failed(Throwable $e): void
+    {
+        $this->bookmark->update(['status' => 'content_failed']);
     }
 }
